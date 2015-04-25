@@ -7,14 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3F3859531AEB2DE200163FFA /* SetMusicStartTimeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3859521AEB2DE200163FFA /* SetMusicStartTimeViewController.m */; };
 		3F8628DD1AEA3CA20094B9BA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628DC1AEA3CA20094B9BA /* main.m */; };
 		3F8628E01AEA3CA20094B9BA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628DF1AEA3CA20094B9BA /* AppDelegate.m */; };
 		3F8628E31AEA3CA20094B9BA /* CustomVideoCamera2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628E11AEA3CA20094B9BA /* CustomVideoCamera2.xcdatamodeld */; };
-		3F8628E61AEA3CA20094B9BA /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628E51AEA3CA20094B9BA /* ViewController.m */; };
+		3F8628E61AEA3CA20094B9BA /* CameraViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628E51AEA3CA20094B9BA /* CameraViewController.m */; };
 		3F8628E91AEA3CA20094B9BA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3F8628E71AEA3CA20094B9BA /* Main.storyboard */; };
 		3F8628EB1AEA3CA20094B9BA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3F8628EA1AEA3CA20094B9BA /* Images.xcassets */; };
 		3F8628EE1AEA3CA20094B9BA /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3F8628EC1AEA3CA20094B9BA /* LaunchScreen.xib */; };
 		3F8628FA1AEA3CA20094B9BA /* CustomVideoCamera2Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628F91AEA3CA20094B9BA /* CustomVideoCamera2Tests.m */; };
+		3F8629041AEA40C00094B9BA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F8629031AEA40C00094B9BA /* AVFoundation.framework */; };
+		3F8629061AEA40C30094B9BA /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F8629051AEA40C30094B9BA /* AudioToolbox.framework */; };
+		3F8629081AEA40D30094B9BA /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F8629071AEA40D30094B9BA /* CoreMedia.framework */; };
+		3F86290A1AEA40D70094B9BA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F8629091AEA40D70094B9BA /* Foundation.framework */; };
+		3F86290C1AEA40DA0094B9BA /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F86290B1AEA40DA0094B9BA /* AssetsLibrary.framework */; };
+		3F86290F1AEA41790094B9BA /* MusicLibaryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F86290E1AEA41790094B9BA /* MusicLibaryViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -28,20 +35,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3F3859511AEB2DE200163FFA /* SetMusicStartTimeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetMusicStartTimeViewController.h; sourceTree = "<group>"; };
+		3F3859521AEB2DE200163FFA /* SetMusicStartTimeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetMusicStartTimeViewController.m; sourceTree = "<group>"; };
 		3F8628D71AEA3CA20094B9BA /* CustomVideoCamera2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomVideoCamera2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F8628DB1AEA3CA20094B9BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F8628DC1AEA3CA20094B9BA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		3F8628DE1AEA3CA20094B9BA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		3F8628DF1AEA3CA20094B9BA /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		3F8628E21AEA3CA20094B9BA /* CustomVideoCamera2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CustomVideoCamera2.xcdatamodel; sourceTree = "<group>"; };
-		3F8628E41AEA3CA20094B9BA /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		3F8628E51AEA3CA20094B9BA /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		3F8628E41AEA3CA20094B9BA /* CameraViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CameraViewController.h; sourceTree = "<group>"; };
+		3F8628E51AEA3CA20094B9BA /* CameraViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CameraViewController.m; sourceTree = "<group>"; };
 		3F8628E81AEA3CA20094B9BA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		3F8628EA1AEA3CA20094B9BA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		3F8628ED1AEA3CA20094B9BA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		3F8628F31AEA3CA20094B9BA /* CustomVideoCamera2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CustomVideoCamera2Tests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F8628F81AEA3CA20094B9BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F8628F91AEA3CA20094B9BA /* CustomVideoCamera2Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CustomVideoCamera2Tests.m; sourceTree = "<group>"; };
+		3F8629031AEA40C00094B9BA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		3F8629051AEA40C30094B9BA /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		3F8629071AEA40D30094B9BA /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		3F8629091AEA40D70094B9BA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3F86290B1AEA40DA0094B9BA /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		3F86290D1AEA41790094B9BA /* MusicLibaryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicLibaryViewController.h; sourceTree = "<group>"; };
+		3F86290E1AEA41790094B9BA /* MusicLibaryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MusicLibaryViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,6 +65,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F86290C1AEA40DA0094B9BA /* AssetsLibrary.framework in Frameworks */,
+				3F86290A1AEA40D70094B9BA /* Foundation.framework in Frameworks */,
+				3F8629081AEA40D30094B9BA /* CoreMedia.framework in Frameworks */,
+				3F8629061AEA40C30094B9BA /* AudioToolbox.framework in Frameworks */,
+				3F8629041AEA40C00094B9BA /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +86,11 @@
 		3F8628CE1AEA3CA20094B9BA = {
 			isa = PBXGroup;
 			children = (
+				3F86290B1AEA40DA0094B9BA /* AssetsLibrary.framework */,
+				3F8629091AEA40D70094B9BA /* Foundation.framework */,
+				3F8629071AEA40D30094B9BA /* CoreMedia.framework */,
+				3F8629051AEA40C30094B9BA /* AudioToolbox.framework */,
+				3F8629031AEA40C00094B9BA /* AVFoundation.framework */,
 				3F8628D91AEA3CA20094B9BA /* CustomVideoCamera2 */,
 				3F8628F61AEA3CA20094B9BA /* CustomVideoCamera2Tests */,
 				3F8628D81AEA3CA20094B9BA /* Products */,
@@ -85,8 +111,12 @@
 			children = (
 				3F8628DE1AEA3CA20094B9BA /* AppDelegate.h */,
 				3F8628DF1AEA3CA20094B9BA /* AppDelegate.m */,
-				3F8628E41AEA3CA20094B9BA /* ViewController.h */,
-				3F8628E51AEA3CA20094B9BA /* ViewController.m */,
+				3F86290D1AEA41790094B9BA /* MusicLibaryViewController.h */,
+				3F86290E1AEA41790094B9BA /* MusicLibaryViewController.m */,
+				3F3859511AEB2DE200163FFA /* SetMusicStartTimeViewController.h */,
+				3F3859521AEB2DE200163FFA /* SetMusicStartTimeViewController.m */,
+				3F8628E41AEA3CA20094B9BA /* CameraViewController.h */,
+				3F8628E51AEA3CA20094B9BA /* CameraViewController.m */,
 				3F8628E71AEA3CA20094B9BA /* Main.storyboard */,
 				3F8628EA1AEA3CA20094B9BA /* Images.xcassets */,
 				3F8628EC1AEA3CA20094B9BA /* LaunchScreen.xib */,
@@ -222,10 +252,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F86290F1AEA41790094B9BA /* MusicLibaryViewController.m in Sources */,
 				3F8628E01AEA3CA20094B9BA /* AppDelegate.m in Sources */,
 				3F8628E31AEA3CA20094B9BA /* CustomVideoCamera2.xcdatamodeld in Sources */,
-				3F8628E61AEA3CA20094B9BA /* ViewController.m in Sources */,
+				3F8628E61AEA3CA20094B9BA /* CameraViewController.m in Sources */,
 				3F8628DD1AEA3CA20094B9BA /* main.m in Sources */,
+				3F3859531AEB2DE200163FFA /* SetMusicStartTimeViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,6 +448,7 @@
 				3F8628FF1AEA3CA20094B9BA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3F8629001AEA3CA20094B9BA /* Build configuration list for PBXNativeTarget "CustomVideoCamera2Tests" */ = {
 			isa = XCConfigurationList;
@@ -424,6 +457,7 @@
 				3F8629021AEA3CA20094B9BA /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
