@@ -17,9 +17,7 @@
 
 @property (strong, nonatomic) AVAsset *assetSongNewStart;
 
-@property (strong, nonatomic) AVPlayer *audioPlayer;
-
-@property (strong, nonatomic) AVAudioPlayer *avAudioPlayer;
+@property (strong, nonatomic) AVAudioPlayer *audioPlayer;
 
 @property (strong, nonatomic) NSDate *previousFireDate;
 

@@ -20,16 +20,6 @@
     
     [self setSongToPlayer];
     
-    NSError *error;
-    
-    _avAudioPlayer = [[AVAudioPlayer alloc]initWithContentsOfURL:_songURL error:&error];
-    
-    _avAudioPlayer.delegate = self;
-    
-    [_avAudioPlayer prepareToPlay];
-    
-    [_avAudioPlayer play];
-    
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
@@ -50,56 +40,123 @@
 
 - (void)setSongToPlayer {
     
-    AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithAsset:[AVAsset assetWithURL:_songURL]];
-    _audioPlayer = [[AVPlayer alloc]initWithPlayerItem:playerItem];
-    [_audioPlayer seekToTime:kCMTimeZero];
+    _audioPlayer = [[AVAudioPlayer alloc]initWithContentsOfURL:_songURL error:nil];
+    
+    _audioPlayer.delegate = self;
+    
+    [_audioPlayer prepareToPlay];
+    
+    _slider.maximumValue = _audioPlayer.duration;
+    
+}
+
+- (void)updateTime {
+    
+    float floatSeconds;
+    
+    if (_isPlaying) {
+        floatSeconds = _audioPlayer.currentTime;
+        _slider.value = floatSeconds;
+    } else
+        floatSeconds = _slider.value;
+    
+    int wholeSeconds = floatSeconds;
+    int hours = wholeSeconds / 60 / 60;
+    int minutes = wholeSeconds / 60 - hours * 60;
+    int seconds = wholeSeconds - minutes * 60;
+    int tenths = (floatSeconds - wholeSeconds) * 10;
+    
+    _labelTimeStamp.text = [NSString stringWithFormat:@"%i:%02d:%02d:%i", hours, minutes, seconds, tenths];
+    
+}
+
+- (void)playSong {
+    
+    _isPlaying = YES;
+    
+    _timer = [NSTimer scheduledTimerWithTimeInterval:0.01 target:self selector:@selector(updateTime) userInfo:nil repeats:YES];
+    
+    [_timer setFireDate:_previousFireDate];
+    
+    [_audioPlayer play];
+    
+    [_buttonPlayPause setTitle:@"Pause" forState:UIControlStateNormal];
+    
+}
+
+- (void)pauseSong {
+    
+    _isPlaying = NO;
+    
+    _previousFireDate = _timer.fireDate;
+    
+    [_audioPlayer pause];
+    
+    [_buttonPlayPause setTitle:@"Play" forState:UIControlStateNormal];
+    
+}
+
+- (void)playScrubPreview {
+    
+    [_audioPlayer pause];
+    
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(endScrubPreview) object:nil];
+    
+    [_audioPlayer play];
+    
+    [self performSelector:@selector(endScrubPreview) withObject:nil afterDelay:0.4];
+    
+}
+
+- (void)endScrubPreview {
+    
+    [_audioPlayer pause];
+    
+    _audioPlayer.currentTime = _slider.value;
+    
+}
+
+- (IBAction)sliderMoved:(id)sender {
+    
+    [self updateTime];
+    
+    _audioPlayer.currentTime = _slider.value;
     
 }
 
 - (IBAction)scrubLeftPressed:(id)sender {
 
-}
+    [self updateTime];
+    
+    _slider.value = _slider.value - 0.1;
+    
+    _audioPlayer.currentTime = _slider.value;
+    
+    [self playScrubPreview];
 
-- (IBAction)sliderMoved:(id)sender {
-    
-    CMTime sliderTime = CMTimeMakeWithSeconds(_slider.value, 1);
-    [_audioPlayer seekToTime:sliderTime];
-    
-}
-
-- (void)updateTime:(NSTimer *)timer {
-    float currentTime = CMTimeGetSeconds(_audioPlayer.currentTime);
-    NSLog(@"currentTime: %f", currentTime);
-    
-    _slider.value = currentTime;
-    
 }
 
 - (IBAction)scrubRightPressed:(id)sender {
 
+    [self updateTime];
+    
+    _slider.value = _slider.value + 0.1;
+    
+    _audioPlayer.currentTime = _slider.value;
+
+    [self playScrubPreview];
+    
 }
 
 - (IBAction)playPressed:(id)sender {
     
     if (_isPlaying) {
         
-        _isPlaying = NO;
-        
-        _previousFireDate = _timer.fireDate;
-        
-        [_audioPlayer pause];
+        [self pauseSong];
         
     } else {
         
-        _isPlaying = YES;
-
-        _timer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(updateTime:) userInfo:nil repeats:YES];
-        
-        [_timer setFireDate:_previousFireDate];
-        
-        NSLog(@"previousFireDate: %@", _previousFireDate);
-        
-        [_audioPlayer play];
+        [self playSong];
 
     }
 }
