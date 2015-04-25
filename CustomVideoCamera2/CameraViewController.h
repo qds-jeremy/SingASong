@@ -9,7 +9,7 @@
 
 #define CAPTURE_FRAMES_PER_SECOND		20
 
-@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate> {
+@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, AVAudioPlayerDelegate> {
     BOOL isRecording;
     
     AVCaptureSession *session;
@@ -21,8 +21,13 @@
 
 @property (assign, nonatomic) BOOL isUsingHeadset;
 
-@property (strong, nonatomic) AVAsset *assetSong;
-@property (strong, nonatomic) AVPlayer *audioPlayer;
+//@property (strong, nonatomic) AVAsset *assetSong;
+//@property (strong, nonatomic) AVPlayer *audioPlayer;
+
+@property (assign, nonatomic) CMTime songStartTime;
+
+@property (strong, nonatomic) NSURL *songURL;
+@property (strong, nonatomic) AVAudioPlayer *audioPlayer;
 
 @property (strong, nonatomic) NSTimer *timer;
 

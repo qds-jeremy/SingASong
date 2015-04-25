@@ -23,6 +23,9 @@
     [self allowMusicToPlay];
     
     [self setupCaptureSession];
+    
+    [self setupAudioPlayer];
+    
 }
 
 - (void)orientaionDidChange:(UIInterfaceOrientation)interfaceOrientation {
@@ -30,13 +33,7 @@
     if (isRecording)
         return;
     
-    if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
-        [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
-    } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeLeft) {
-        [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
-    } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeRight) {
-        [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
-    }
+    [self cameraSetOutputProperties];
     
 }
 
@@ -49,6 +46,18 @@
     [super viewWillAppear:animated];
     
     isRecording = NO;
+}
+
+- (void)setupAudioPlayer {
+    
+    _audioPlayer = [[AVAudioPlayer alloc]initWithContentsOfURL:_songURL error:nil];
+    
+    _audioPlayer.currentTime = CMTimeGetSeconds(_songStartTime);
+    
+    _audioPlayer.delegate = self;
+    
+    [_audioPlayer prepareToPlay];
+
 }
 
 - (void)startCountdown {
@@ -85,15 +94,15 @@
 }
 
 - (void)startSongAndRecording {
-    
-    AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithAsset:_assetSong];
-    _audioPlayer = [[AVPlayer alloc]initWithPlayerItem:playerItem];
 
-    [_audioPlayer seekToTime:kCMTimeZero];
-    [_audioPlayer play];
+    dispatch_queue_t myQueue = dispatch_queue_create("AudioVideoRecordQueue",NULL);
+    dispatch_async(myQueue, ^{
     
-    [self startRecording];
-    
+        [_audioPlayer play];
+        [self startRecording];
+        
+    });
+        
 }
 
 - (void)checkForHeadset {
@@ -247,25 +256,41 @@
 {
     //SET THE CONNECTION PROPERTIES (output properties)
     AVCaptureConnection *CaptureConnection = [output connectionWithMediaType:AVMediaTypeVideo];
-    
-    //Set landscape (if required)
-    if ([CaptureConnection isVideoOrientationSupported])
-    {
-        AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeLeft;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
-        [CaptureConnection setVideoOrientation:orientation];
+
+    if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
+        [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+        [CaptureConnection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+        
+    } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeLeft) {
+        [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+        [CaptureConnection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
+        
+    } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeRight) {
+        [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+        [CaptureConnection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
+        
     }
+
     
-    //Set frame rate (if requried)
-    CMTimeShow(CaptureConnection.videoMinFrameDuration);
-    CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+//    //Set landscape (if required)
+//    if ([CaptureConnection isVideoOrientationSupported])
+//    {
+//        AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeLeft;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
+//        [CaptureConnection setVideoOrientation:orientation];
+//    }
+
     
-    if (CaptureConnection.supportsVideoMinFrameDuration)
-        CaptureConnection.videoMinFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
-    if (CaptureConnection.supportsVideoMaxFrameDuration)
-        CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
-    
-    CMTimeShow(CaptureConnection.videoMinFrameDuration);
-    CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+//    //Set frame rate (if requried)
+//    CMTimeShow(CaptureConnection.videoMinFrameDuration);
+//    CMTimeShow(CaptureConnection.videoMaxFrameDuration);
+//    
+//    if (CaptureConnection.supportsVideoMinFrameDuration)
+//        CaptureConnection.videoMinFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
+//    if (CaptureConnection.supportsVideoMaxFrameDuration)
+//        CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
+//    
+//    CMTimeShow(CaptureConnection.videoMinFrameDuration);
+//    CMTimeShow(CaptureConnection.videoMaxFrameDuration);
 }
 
 //********** GET CAMERA IN SPECIFIED POSITION IF IT EXISTS **********
@@ -417,20 +442,28 @@
         AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
         
         // 2 - Create video track
-        AVMutableCompositionTrack *firstTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-        [firstTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
+        AVMutableCompositionTrack *videoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+        [videoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
         
         // 3 - Audio track
         AVMutableCompositionTrack *audioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:1];
         [audioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[assetCaptured tracksWithMediaType:AVMediaTypeAudio] firstObject] atTime:kCMTimeZero error:nil];
+        audioTrack.preferredVolume = 10;
         
         if (_isUsingHeadset) {
             // 4 - Music track
-            if (_assetSong != nil) {
+            if (_songURL != nil) {
+                
+                AVAsset *assetSong = [AVAsset assetWithURL:_songURL];
+                
                 AVMutableCompositionTrack *musicTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:2];
-                [musicTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[_assetSong tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:kCMTimeZero error:nil];
+                [musicTrack insertTimeRange:CMTimeRangeMake(_songStartTime, assetCaptured.duration) ofTrack:[[assetSong tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0] atTime:kCMTimeZero error:nil];
+                musicTrack.preferredVolume = 0.01;
+                
             }
         }
+        
+        
         
         // 5 - Get path
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -443,6 +476,7 @@
         exporter.outputURL = url;
         exporter.outputFileType = AVFileTypeQuickTimeMovie;
         exporter.shouldOptimizeForNetworkUse = YES;
+        exporter.videoComposition = [self getVideoComposition:assetCaptured composition:mixComposition];
         [exporter exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self exportDidFinish:exporter];
@@ -473,6 +507,72 @@
         }
     }
     
+}
+
+- (AVMutableVideoComposition *) getVideoComposition:(AVAsset *)asset composition:( AVMutableComposition*)composition{
+    BOOL isPortrait_ = [self isVideoPortrait:asset];
+    
+    
+    AVMutableCompositionTrack *compositionVideoTrack = [composition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+    
+    
+    AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+    [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration) ofTrack:videoTrack atTime:kCMTimeZero error:nil];
+    
+    AVMutableVideoCompositionLayerInstruction *layerInst = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:compositionVideoTrack];
+    
+    CGAffineTransform transform = videoTrack.preferredTransform;
+    [layerInst setTransform:transform atTime:kCMTimeZero];
+    
+    
+    AVMutableVideoCompositionInstruction *inst = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+    inst.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration);
+    inst.layerInstructions = [NSArray arrayWithObject:layerInst];
+    
+    
+    AVMutableVideoComposition *videoComposition = [AVMutableVideoComposition videoComposition];
+    videoComposition.instructions = [NSArray arrayWithObject:inst];
+    
+    CGSize videoSize = videoTrack.naturalSize;
+    if(isPortrait_) {
+        NSLog(@"video is portrait ");
+        videoSize = CGSizeMake(videoSize.height, videoSize.width);
+    }
+    videoComposition.renderSize = videoSize;
+    videoComposition.frameDuration = CMTimeMake(1,30);
+    videoComposition.renderScale = 1.0;
+    return videoComposition;
+}
+
+- (BOOL) isVideoPortrait:(AVAsset *)asset{
+    BOOL isPortrait = FALSE;
+    NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+    if([tracks    count] > 0) {
+        AVAssetTrack *videoTrack = [tracks objectAtIndex:0];
+        
+        CGAffineTransform t = videoTrack.preferredTransform;
+        // Portrait
+        if(t.a == 0 && t.b == 1.0 && t.c == -1.0 && t.d == 0)
+        {
+            isPortrait = YES;
+        }
+        // PortraitUpsideDown
+        if(t.a == 0 && t.b == -1.0 && t.c == 1.0 && t.d == 0)  {
+            
+            isPortrait = YES;
+        }
+        // LandscapeRight
+        if(t.a == 1.0 && t.b == 0 && t.c == 0 && t.d == 1.0)
+        {
+            isPortrait = FALSE;
+        }
+        // LandscapeLeft
+        if(t.a == -1.0 && t.b == 0 && t.c == 0 && t.d == -1.0)
+        {
+            isPortrait = FALSE;
+        }
+    }
+    return isPortrait;
 }
 
 - (IBAction)closeView:(id)sender {

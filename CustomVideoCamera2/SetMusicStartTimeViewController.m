@@ -26,15 +26,17 @@
 
     CameraViewController *vc = segue.destinationViewController;
     
-    if ([segue.identifier isEqualToString:@"nextWithSong"]) {
-        
-        vc.assetSong = _assetSongNewStart;
-        
-    } else {
+//    if ([segue.identifier isEqualToString:@"nextWithSong"]) {
     
-        vc.assetSong = [AVAsset assetWithURL:_songURL];
+        vc.songURL = _songURL;
+    
+    vc.songStartTime = CMTimeMakeWithSeconds(_slider.value, 1);
         
-    }
+//    } else {
+//    
+//        vc.songURL = [AVAsset assetWithURL:_songURL];
+//        
+//    }
     
 }
 
