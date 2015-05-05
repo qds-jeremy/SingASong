@@ -43,6 +43,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *labelCountdown;
 @property (weak, nonatomic) IBOutlet UIButton *buttonStartStop;
 @property (weak, nonatomic) IBOutlet UIButton *buttonAddOverlay;
+@property (weak, nonatomic) IBOutlet UIButton *buttonAddText;
 
 - (void)cameraSetOutputProperties;
 

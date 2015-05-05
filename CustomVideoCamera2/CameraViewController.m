@@ -116,7 +116,6 @@
 }
 
 - (void)cameraSetOutputProperties {
-    AVCaptureConnection *captureConnection = [output connectionWithMediaType:AVMediaTypeVideo];
     if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
     } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeLeft) {
@@ -144,9 +143,6 @@
         }
     }
 }
-
-
-
 
 //********** START STOP RECORDING BUTTON **********
 - (IBAction)startStopButtonPressed:(id)sender {
@@ -200,7 +196,6 @@
 //********** DID FINISH RECORDING TO OUTPUT FILE AT URL **********
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
 {
-    
     _isExporting = YES;
     
     NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
@@ -215,26 +210,7 @@
             RecordedSuccessfully = [value boolValue];
         }
     }
-    if (RecordedSuccessfully)
-    {
-        
-        
-//        //----- RECORDED SUCESSFULLY -----
-//        NSLog(@"didFinishRecordingToOutputFileAtURL - success");
-//        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-//        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputFileURL])
-//        {
-//            [library writeVideoAtPathToSavedPhotosAlbum:outputFileURL
-//                                        completionBlock:^(NSURL *assetURL, NSError *error)
-//             {
-//                 if (error)
-//                 {
-//                     
-//                 }
-//             }];
-//        }
-        
-        
+    if (RecordedSuccessfully) {
         AVAsset *assetCaptured = [AVAsset assetWithURL:outputFileURL];
         // 1 - Create AVMutableComposition object. This object will hold your AVMutableCompositionTrack instances.
         AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
@@ -251,13 +227,12 @@
         AVMutableVideoComposition *videoComp;
         if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
             
-            CGSize videoSize = [assetCaptured naturalSize];
+            CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
             
             UIImage *myImage = [UIImage imageNamed:@"In_Video_Border.png"];
             CALayer *aLayer = [CALayer layer];
             aLayer.contents = (id)myImage.CGImage;
             aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-//            aLayer.opacity = 0.65;
             CALayer *parentLayer = [CALayer layer];
             CALayer *videoLayer = [CALayer layer];
             parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
@@ -327,28 +302,6 @@
         
         
     }
-}
-
-- (void)applyVideoEffectsToComposition:(AVMutableVideoComposition *)composition size:(CGSize)size {
-    // 1 - set up the overlay
-    CALayer *overlayLayer = [CALayer layer];
-    UIImage *overlayImage = nil;
-    overlayImage = [UIImage imageNamed:@"In_Video_Border.png"];
-    
-    [overlayLayer setContents:(id)[overlayImage CGImage]];
-    overlayLayer.frame = CGRectMake(0, 0, 640, 480);
-    [overlayLayer setMasksToBounds:YES];
-    
-    // 2 - set up the parent layer
-    CALayer *parentLayer = [CALayer layer];
-    CALayer *videoLayer = [CALayer layer];
-    parentLayer.frame = CGRectMake(0, 0, _viewForPreview.frame.size.width, _viewForPreview.frame.size.height);
-    videoLayer.frame = CGRectMake(0, 0, _viewForPreview.frame.size.width, _viewForPreview.frame.size.height);
-    [parentLayer addSublayer:videoLayer];
-    [parentLayer addSublayer:overlayLayer];
-    
-    // 3 - apply magic
-    _composition = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
 }
 
 - (void)exportDidFinish:(AVAssetExportSession *)exportSession {

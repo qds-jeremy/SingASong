@@ -216,14 +216,17 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8nj-rx-bXK">
-                                        <rect key="frame" x="479" y="11" width="33" height="34"/>
+                                        <rect key="frame" x="416" y="11" width="96" height="34"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="96" id="ZSP-tx-9cW"/>
+                                        </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="Text">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
-                                            <action selector="textPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="E66-4r-eWa"/>
+                                            <action selector="textPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="OQi-qm-Zo8"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="X0i-E6-MKF">
@@ -301,6 +304,7 @@
                     </view>
                     <connections>
                         <outlet property="buttonAddOverlay" destination="wBe-kH-xpD" id="Nda-vi-2HQ"/>
+                        <outlet property="buttonAddText" destination="8nj-rx-bXK" id="xV3-eY-Meb"/>
                         <outlet property="buttonStartStop" destination="DDw-p2-izc" id="vDK-rt-Uyh"/>
                         <outlet property="labelCountdown" destination="E62-T8-vf9" id="Nd3-tt-ImA"/>
                         <outlet property="viewForPreview" destination="3eq-qe-NCb" id="cyu-0n-0PK"/>
