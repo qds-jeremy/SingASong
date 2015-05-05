@@ -2,29 +2,14 @@
 
 @implementation CameraViewController
 
-@synthesize previewLayer;
+@synthesize previewLayer, initialize;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
-//********** VIEW DID LOAD **********
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     
+    [self initializeCameraAndAudioPlayer];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientaionDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-    
-    [self allowMusicToPlay];
-    
-    [self setupCaptureSession];
-    
-    [self setupAudioPlayer];
     
 }
 
@@ -39,29 +24,6 @@
     
 }
 
-
-//********** VIEW WILL APPEAR **********
-//View about to be added to the window (called each time it appears)
-//Occurs after other view's viewWillDisappear
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    
-    isRecording = NO;
-}
-
-- (void)setupAudioPlayer {
-    
-    _audioPlayer = [[AVAudioPlayer alloc]initWithContentsOfURL:_songURL error:nil];
-    
-    _audioPlayer.currentTime = CMTimeGetSeconds(_songStartTime);
-    
-    _audioPlayer.delegate = self;
-    
-    [_audioPlayer prepareToPlay];
-
-}
-
 - (void)startCountdown {
     
     _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateTimerLabel) userInfo:nil repeats:YES];
@@ -69,6 +31,20 @@
     [_timer fire];
     
 }
+
+- (void)initializeCameraAndAudioPlayer {
+    
+    initialize = [Initialize new];
+    
+    _audioPlayer = [initialize audioPlayerWithSongURL:_songURL songStartTime:_songStartTime];
+    
+    _audioPlayer.delegate = self;
+    
+    [self setupCaptureSession];
+
+}
+
+
 
 - (void)updateTimerLabel {
     
@@ -81,192 +57,54 @@
         
         [_labelCountdown setHidden:YES];
         [_timer invalidate];
-        [self checkForHeadset];
+        _isUsingHeadset = [initialize checkIsUsingHeadset];
         [self startSongAndRecording];
         
     }
     
 }
 
-- (void)allowMusicToPlay {
-    
-//    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
-//    NSError *setCategoryError = nil;
-    
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error: nil];
-    [[AVAudioSession sharedInstance] setActive: YES error: nil];
-    
-//    if (![audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&setCategoryError]) {
-//        NSLog(@"audioSessionMixError: %@ %@", setCategoryError, [setCategoryError userInfo]);
-//    }
-    
-}
-
 - (void)startSongAndRecording {
-
-//    dispatch_queue_t myQueue = dispatch_queue_create("AudioVideoRecordQueue",NULL);
-//    dispatch_async(myQueue, ^{
-//    
-//        [_audioPlayer play];
-//        [self startRecording];
-//    
-//    });
     
     [_audioPlayer play];
-//    [_audioPlayer pause];
+    
     [self startRecording];
     
 }
 
-- (void)checkForHeadset {
-    
-    _isUsingHeadset = NO;
-    AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
-    for (AVAudioSessionPortDescription* desc in [route outputs]) {
-        if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones] || [[desc portType] isEqualToString:@"Headphones"])
-            _isUsingHeadset = YES;
-    }
-
-    /*
-    UInt32 routeSize = sizeof (CFStringRef); CFStringRef route;
-    AudioSessionGetProperty (kAudioSessionProperty_AudioRoute, &routeSize, &route);
-    
-    //NSLog(@"Error >>>>>>>>>> :%@", error);
-//     Known values of route:
-//     "Headset"
-//     "Headphone"
-//     "Speaker"
-//     "SpeakerAndMicrophone"
-//     "HeadphonesAndMicrophone"
-//     "HeadsetInOut"
-//     "ReceiverAndMicrophone"
-//     "Lineout"
-    
-    NSString *routeStr = (__bridge NSString *)route;
-    
-    NSRange headsetRange = [routeStr rangeOfString : @"Headset"]; NSRange receiverRange = [routeStr rangeOfString : @"Receiver"];
-    
-    if(headsetRange.location != NSNotFound) {
-        // Don't change the route if the headset is plugged in.
-        NSLog(@"headphone is plugged in ");
-        _isUsingHeadset = YES;
-        
-    } else {
-        if (receiverRange.location != NSNotFound) {
-            // Change to play on the speaker
-            NSLog(@"play on the speaker");
-        } else {
-            NSLog(@"Unknown audio route.");
-        }
-    }
-    
-    */
-}
-
-//---------------------------------
-//----- SETUP CAPTURE SESSION -----
-//---------------------------------
 - (void)setupCaptureSession {
-//    NSLog(@"Setting up capture session");
-    session = [[AVCaptureSession alloc] init];
+    isRecording = NO;
     
-    //----- ADD INPUTS -----
-//    NSLog(@"Adding video input");
-    
-    //ADD VIDEO INPUT
-    AVCaptureDevice *VideoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-    if (VideoDevice)
-    {
-        NSError *error;
-        deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:VideoDevice error:&error];
-        if (!error)
-        {
-            if ([session canAddInput:deviceInput])
-                [session addInput:deviceInput];
-            else
-                NSLog(@"Couldn't add video input");
-        }
+    session = [initialize cameraSession];
+
+    //Add Video Input
+    AVCaptureDevice *videoDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+    NSError *error;
+    deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:videoDevice error:&error];
+    if (!error) {
+        if ([session canAddInput:deviceInput])
+            [session addInput:deviceInput];
         else
-        {
-            NSLog(@"Couldn't create video input");
-        }
-    }
-    else
-    {
-        NSLog(@"Couldn't create video capture device");
+            NSLog(@"Couldn't add video input");
+    } else {
+        NSLog(@"Couldn't create video input");
     }
     
-    //ADD AUDIO INPUT
-//    NSLog(@"Adding audio input");
-    AVCaptureDevice *audioCaptureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeAudio];
-    NSError *error = nil;
-    AVCaptureDeviceInput *audioInput = [AVCaptureDeviceInput deviceInputWithDevice:audioCaptureDevice error:&error];
-    if (audioInput)
-    {
-        [session addInput:audioInput];
-    }
-    
-    
-    //----- ADD OUTPUTS -----
-    
-    //ADD VIDEO PREVIEW LAYER
-//    NSLog(@"Adding video preview layer");
     [self setPreviewLayer:[[AVCaptureVideoPreviewLayer alloc] initWithSession:session]];
-    
-    [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait]; //<<SET ORIENTATION.  You can deliberatly set this wrong to flip the image and may actually need to set it wrong to get the right image
-    
+    [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
     [[self previewLayer] setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     
-    
-    //ADD MOVIE FILE OUTPUT
-//    NSLog(@"Adding movie file output");
-    output = [[AVCaptureMovieFileOutput alloc] init];
-    
-    Float64 TotalSeconds = 60;			//Total seconds
-    int32_t preferredTimeScale = 30;	//Frames per second
-    CMTime maxDuration = CMTimeMakeWithSeconds(TotalSeconds, preferredTimeScale);	//<<SET MAX DURATION
-    output.maxRecordedDuration = maxDuration;
-    
-    output.minFreeDiskSpaceLimit = 1024 * 1024;						//<<SET MIN FREE SPACE IN BYTES FOR RECORDING TO CONTINUE ON A VOLUME
-    
+    output = [initialize cameraOutputSettingsForSession:session];
     if ([session canAddOutput:output])
         [session addOutput:output];
     
-    //SET THE CONNECTION PROPERTIES (output properties)
-    [self cameraSetOutputProperties];			//(We call a method as it also has to be done after changing camera)
+    UIView *cameraView = [UIView new];
+    [_viewForPreview addSubview:cameraView];
+    [cameraView.layer addSublayer:previewLayer];
     
-    
-    
-    //----- SET THE IMAGE QUALITY / RESOLUTION -----
-    //Options:
-    //	AVCaptureSessionPresetHigh - Highest recording quality (varies per device)
-    //	AVCaptureSessionPresetMedium - Suitable for WiFi sharing (actual values may change)
-    //	AVCaptureSessionPresetLow - Suitable for 3G sharing (actual values may change)
-    //	AVCaptureSessionPreset640x480 - 640x480 VGA (check its supported before setting it)
-    //	AVCaptureSessionPreset1280x720 - 1280x720 720p HD (check its supported before setting it)
-    //	AVCaptureSessionPresetPhoto - Full photo resolution (not supported for video output)
-//    NSLog(@"Setting image quality");
-//    [session setSessionPreset:AVCaptureSessionPresetMedium];
-//    if ([session canSetSessionPreset:AVCaptureSessionPreset640x480])		//Check size based configs are supported before setting them
-    [session setSessionPreset:AVCaptureSessionPreset640x480];
-    
-    
-    
-    //----- DISPLAY THE PREVIEW LAYER -----
-    //Display it full screen under out view controller existing controls
-//    NSLog(@"Display the preview layer");
-
     [self sizeCameraForOrientation];
-
-    //[[[self view] layer] addSublayer:[[self CaptureManager] previewLayer]];
-    //We use this instead so it goes on a layer behind our UI controls (avoids us having to manually bring each control to the front):
-    UIView *CameraView = [[UIView alloc] init];
-    [_viewForPreview addSubview:CameraView];
-    //    [self.view sendSubviewToBack:CameraView];
+    [self cameraSetOutputProperties];
     
-    [[CameraView layer] addSublayer:previewLayer];
-    
-    //----- START THE CAPTURE SESSION RUNNING -----
     [session startRunning];
 }
 
@@ -274,105 +112,34 @@
     _viewForPreview.frame = CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height);
     CGRect layerRect = _viewForPreview.layer.bounds;
     [previewLayer setBounds:layerRect];
-    [previewLayer setPosition:CGPointMake(CGRectGetMidX(layerRect),
-                                          CGRectGetMidY(layerRect))];
+    [previewLayer setPosition:CGPointMake(CGRectGetMidX(layerRect), CGRectGetMidY(layerRect))];
 }
 
-//********** CAMERA SET OUTPUT PROPERTIES **********
-- (void) cameraSetOutputProperties
-{
-    //SET THE CONNECTION PROPERTIES (output properties)
-    AVCaptureConnection *CaptureConnection = [output connectionWithMediaType:AVMediaTypeVideo];
-
+- (void)cameraSetOutputProperties {
+    AVCaptureConnection *captureConnection = [output connectionWithMediaType:AVMediaTypeVideo];
     if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
-        [CaptureConnection setVideoOrientation:AVCaptureVideoOrientationPortrait];
-        
     } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeLeft) {
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
-        [CaptureConnection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
-        
     } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeRight) {
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
-        [CaptureConnection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
-        
     }
-
-    
-//    //Set landscape (if required)
-//    if ([CaptureConnection isVideoOrientationSupported])
-//    {
-//        AVCaptureVideoOrientation orientation = AVCaptureVideoOrientationLandscapeLeft;		//<<<<<SET VIDEO ORIENTATION IF LANDSCAPE
-//        [CaptureConnection setVideoOrientation:orientation];
-//    }
-
-    
-//    //Set frame rate (if requried)
-//    CMTimeShow(CaptureConnection.videoMinFrameDuration);
-//    CMTimeShow(CaptureConnection.videoMaxFrameDuration);
-//    
-//    if (CaptureConnection.supportsVideoMinFrameDuration)
-//        CaptureConnection.videoMinFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
-//    if (CaptureConnection.supportsVideoMaxFrameDuration)
-//        CaptureConnection.videoMaxFrameDuration = CMTimeMake(1, CAPTURE_FRAMES_PER_SECOND);
-//    
-//    CMTimeShow(CaptureConnection.videoMinFrameDuration);
-//    CMTimeShow(CaptureConnection.videoMaxFrameDuration);
 }
-
-//********** GET CAMERA IN SPECIFIED POSITION IF IT EXISTS **********
-- (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition) position
-{
-    NSArray *Devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
-    for (AVCaptureDevice *Device in Devices)
-    {
-        if ([Device position] == position)
-        {
-            return Device;
-        }
-    }
-    return nil;
-}
-
-
 
 //********** CAMERA TOGGLE **********
-- (IBAction)cameraToggleButtonPressed:(id)sender
-{
-    if ([[AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo] count] > 1)		//Only do if device has multiple cameras
-    {
-        NSLog(@"Toggle camera");
-        NSError *error;
-        //AVCaptureDeviceInput *videoInput = [self videoInput];
-        AVCaptureDeviceInput *NewVideoInput;
-        AVCaptureDevicePosition position = [[deviceInput device] position];
-        if (position == AVCaptureDevicePositionBack)
-        {
-            NewVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self cameraWithPosition:AVCaptureDevicePositionFront] error:&error];
-        }
-        else if (position == AVCaptureDevicePositionFront)
-        {
-            NewVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:[self cameraWithPosition:AVCaptureDevicePositionBack] error:&error];
-        }
-        
-        if (NewVideoInput != nil)
-        {
-            [session beginConfiguration];		//We can now change the inputs and output configuration.  Use commitConfiguration to end
+- (IBAction)cameraToggleButtonPressed:(id)sender {
+    if ([[AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo] count] > 1) {  //  Only do if device has multiple cameras
+        AVCaptureDeviceInput *newVideoInput = [initialize getNewViewInputForDeviceInput:deviceInput];
+        if (newVideoInput != nil) {
+            [session beginConfiguration];   //  We can now change the inputs and output configuration.  Use commitConfiguration to end
             [session removeInput:deviceInput];
-            if ([session canAddInput:NewVideoInput])
-            {
-                [session addInput:NewVideoInput];
-                deviceInput = NewVideoInput;
-            }
-            else
-            {
+            if ([session canAddInput:newVideoInput]) {
+                [session addInput:newVideoInput];
+                deviceInput = newVideoInput;
+            } else {
                 [session addInput:deviceInput];
             }
-            
-            //Set the connection properties again
             [self cameraSetOutputProperties];
-            
-            
             [session commitConfiguration];
         }
     }
@@ -606,37 +373,6 @@
     
     _isExporting = NO;
     
-}
-
-- (BOOL)isVideoPortrait:(AVAsset *)asset{
-    BOOL isPortrait = FALSE;
-    NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeVideo];
-    if([tracks    count] > 0) {
-        AVAssetTrack *videoTrack = [tracks objectAtIndex:0];
-        
-        CGAffineTransform t = videoTrack.preferredTransform;
-        // Portrait
-        if(t.a == 0 && t.b == 1.0 && t.c == -1.0 && t.d == 0)
-        {
-            isPortrait = YES;
-        }
-        // PortraitUpsideDown
-        if(t.a == 0 && t.b == -1.0 && t.c == 1.0 && t.d == 0)  {
-            
-            isPortrait = YES;
-        }
-        // LandscapeRight
-        if(t.a == 1.0 && t.b == 0 && t.c == 0 && t.d == 1.0)
-        {
-            isPortrait = FALSE;
-        }
-        // LandscapeLeft
-        if(t.a == -1.0 && t.b == 0 && t.c == 0 && t.d == -1.0)
-        {
-            isPortrait = FALSE;
-        }
-    }
-    return isPortrait;
 }
 
 - (IBAction)overlayPressed:(id)sender {

@@ -9,6 +9,8 @@
 
 #define CAPTURE_FRAMES_PER_SECOND		20
 
+#import "Initialize.h"
+
 @interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, AVAudioPlayerDelegate> {
     BOOL isRecording;
     
@@ -16,6 +18,8 @@
     AVCaptureMovieFileOutput *output;
     AVCaptureDeviceInput *deviceInput;
 }
+
+@property (strong, nonatomic) Initialize *initialize;
 
 @property (retain) AVCaptureVideoPreviewLayer *previewLayer;
 
@@ -41,8 +45,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *buttonAddOverlay;
 
 - (void)cameraSetOutputProperties;
-
-- (AVCaptureDevice *) cameraWithPosition:(AVCaptureDevicePosition)position;
 
 - (IBAction)startStopButtonPressed:(id)sender;
 - (IBAction)cameraToggleButtonPressed:(id)sender;

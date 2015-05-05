@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3F3859531AEB2DE200163FFA /* SetMusicStartTimeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3859521AEB2DE200163FFA /* SetMusicStartTimeViewController.m */; };
+		3F3BE5251AF89C5000F16335 /* Initialize.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F3BE5241AF89C5000F16335 /* Initialize.m */; };
 		3F8628DD1AEA3CA20094B9BA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628DC1AEA3CA20094B9BA /* main.m */; };
 		3F8628E01AEA3CA20094B9BA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628DF1AEA3CA20094B9BA /* AppDelegate.m */; };
 		3F8628E31AEA3CA20094B9BA /* CustomVideoCamera2.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3F8628E11AEA3CA20094B9BA /* CustomVideoCamera2.xcdatamodeld */; };
@@ -38,6 +39,8 @@
 /* Begin PBXFileReference section */
 		3F3859511AEB2DE200163FFA /* SetMusicStartTimeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetMusicStartTimeViewController.h; sourceTree = "<group>"; };
 		3F3859521AEB2DE200163FFA /* SetMusicStartTimeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetMusicStartTimeViewController.m; sourceTree = "<group>"; };
+		3F3BE5231AF89C5000F16335 /* Initialize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Initialize.h; sourceTree = "<group>"; };
+		3F3BE5241AF89C5000F16335 /* Initialize.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Initialize.m; sourceTree = "<group>"; };
 		3F8628D71AEA3CA20094B9BA /* CustomVideoCamera2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CustomVideoCamera2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3F8628DB1AEA3CA20094B9BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3F8628DC1AEA3CA20094B9BA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -85,6 +88,17 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3F3BE5221AF89C2D00F16335 /* CameraVC */ = {
+			isa = PBXGroup;
+			children = (
+				3F8628E41AEA3CA20094B9BA /* CameraViewController.h */,
+				3F8628E51AEA3CA20094B9BA /* CameraViewController.m */,
+				3F3BE5231AF89C5000F16335 /* Initialize.h */,
+				3F3BE5241AF89C5000F16335 /* Initialize.m */,
+			);
+			name = CameraVC;
+			sourceTree = "<group>";
+		};
 		3F8628CE1AEA3CA20094B9BA = {
 			isa = PBXGroup;
 			children = (
@@ -117,8 +131,7 @@
 				3F86290E1AEA41790094B9BA /* MusicLibaryViewController.m */,
 				3F3859511AEB2DE200163FFA /* SetMusicStartTimeViewController.h */,
 				3F3859521AEB2DE200163FFA /* SetMusicStartTimeViewController.m */,
-				3F8628E41AEA3CA20094B9BA /* CameraViewController.h */,
-				3F8628E51AEA3CA20094B9BA /* CameraViewController.m */,
+				3F3BE5221AF89C2D00F16335 /* CameraVC */,
 				3F8628E71AEA3CA20094B9BA /* Main.storyboard */,
 				3F8628EA1AEA3CA20094B9BA /* Images.xcassets */,
 				3F8628EC1AEA3CA20094B9BA /* LaunchScreen.xib */,
@@ -262,6 +275,7 @@
 				3F8628E61AEA3CA20094B9BA /* CameraViewController.m in Sources */,
 				3F8628DD1AEA3CA20094B9BA /* main.m in Sources */,
 				3F3859531AEB2DE200163FFA /* SetMusicStartTimeViewController.m in Sources */,
+				3F3BE5251AF89C5000F16335 /* Initialize.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
