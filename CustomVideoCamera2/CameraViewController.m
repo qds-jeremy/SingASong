@@ -1,3 +1,11 @@
+//
+//  CameraViewController.m
+//  CustomVideoCamera2
+//
+//  Created by Jeremy on 4/25/15.
+//  Copyright (c) 2015 Jeremy. All rights reserved.
+//
+
 #import "CameraViewController.h"
 
 @implementation CameraViewController
@@ -7,74 +15,54 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    _exportCapture = [ExportCapture new];
+    _exportCapture.delegate = self;
+    
     [self initializeCameraAndAudioPlayer];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientaionDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
-    
 }
 
 - (void)orientaionDidChange:(UIInterfaceOrientation)interfaceOrientation {
     
     if (isRecording)
         return;
-    
     [self cameraSetOutputProperties];
-    
     [self sizeCameraForOrientation];
-    
 }
 
 - (void)startCountdown {
-    
     _timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(updateTimerLabel) userInfo:nil repeats:YES];
-    
     [_timer fire];
-    
 }
 
 - (void)initializeCameraAndAudioPlayer {
-    
     initialize = [Initialize new];
-    
     _audioPlayer = [initialize audioPlayerWithSongURL:_songURL songStartTime:_songStartTime];
-    
     _audioPlayer.delegate = self;
-    
     [self setupCaptureSession];
-
 }
 
-
-
 - (void)updateTimerLabel {
-    
     int countdownNumber = _labelCountdown.text.intValue;
     countdownNumber--;
     
     if (countdownNumber > 0) {
     _labelCountdown.text = [NSString stringWithFormat:@"%i", countdownNumber];
     } else {
-        
         [_labelCountdown setHidden:YES];
         [_timer invalidate];
         _isUsingHeadset = [initialize checkIsUsingHeadset];
         [self startSongAndRecording];
-        
     }
-    
 }
 
 - (void)startSongAndRecording {
-    
     [_audioPlayer play];
-    
     [self startRecording];
-    
 }
 
 - (void)setupCaptureSession {
     isRecording = NO;
-    
     session = [initialize cameraSession];
 
     //Add Video Input
@@ -86,9 +74,8 @@
             [session addInput:deviceInput];
         else
             NSLog(@"Couldn't add video input");
-    } else {
+    } else
         NSLog(@"Couldn't create video input");
-    }
     
     [self setPreviewLayer:[[AVCaptureVideoPreviewLayer alloc] initWithSession:session]];
     [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
@@ -125,7 +112,6 @@
     }
 }
 
-//********** CAMERA TOGGLE **********
 - (IBAction)cameraToggleButtonPressed:(id)sender {
     if ([[AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo] count] > 1) {  //  Only do if device has multiple cameras
         AVCaptureDeviceInput *newVideoInput = [initialize getNewViewInputForDeviceInput:deviceInput];
@@ -144,7 +130,6 @@
     }
 }
 
-//********** START STOP RECORDING BUTTON **********
 - (IBAction)startStopButtonPressed:(id)sender {
     if (_isExporting)
         return;
@@ -157,48 +142,30 @@
         [_buttonStartStop setTitle:@"Stop" forState:UIControlStateNormal];
         [self startCountdown];
     }
-
 }
 
 - (void)startRecording {
-    
-    //----- START RECORDING -----
-    NSLog(@"START RECORDING");
-    
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    if ([fileManager fileExistsAtPath:outputPath])
-    {
+    if ([fileManager fileExistsAtPath:outputPath]) {
         NSError *error;
         if ([fileManager removeItemAtPath:outputPath error:&error] == NO)
-        {
-            //Error - handle if requried
-        }
+            NSLog(@"record error: %@ %@", error, [error userInfo]);
     }
-    //Start recording
     [output startRecordingToOutputFileURL:outputURL recordingDelegate:self];
-    
 }
 
 - (void)stopRecording {
-    //----- STOP RECORDING -----
-    NSLog(@"STOP RECORDING");
     isRecording = NO;
-    
     [output stopRecording];
-    
     [_audioPlayer pause];
 }
 
-
-//********** DID FINISH RECORDING TO OUTPUT FILE AT URL **********
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
 {
     _isExporting = YES;
-    
-    NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
     
     BOOL RecordedSuccessfully = YES;
     if ([error code] != noErr)
@@ -225,16 +192,15 @@
         audioTrack.preferredVolume = 10;
         
         AVMutableVideoComposition *videoComp;
+        CALayer *parentLayer = [CALayer layer];
+        CALayer *videoLayer = [CALayer layer];
+        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
         if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
-            
-            CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
             
             UIImage *myImage = [UIImage imageNamed:@"In_Video_Border.png"];
             CALayer *aLayer = [CALayer layer];
             aLayer.contents = (id)myImage.CGImage;
             aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-            CALayer *parentLayer = [CALayer layer];
-            CALayer *videoLayer = [CALayer layer];
             parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
             videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
             [parentLayer addSublayer:videoLayer];
@@ -296,36 +262,15 @@
         
         [exporter exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self exportDidFinish:exporter];
+                [_exportCapture exportDidFinish:exporter];
             });
         }];
-        
-        
     }
 }
 
-- (void)exportDidFinish:(AVAssetExportSession *)exportSession {
-    
-    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-        NSURL *outputURL = exportSession.outputURL;
-        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];        
-        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {            
-            [library writeVideoAtPathToSavedPhotosAlbum:outputURL completionBlock:^(NSURL *assetURL, NSError *error){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (error) {
-                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Video Saving Failed" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                                                [alert show];
-                    } else {
-                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Video Saved" message:@"Saved To Photo Album" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                        [alert show];
-                    }
-                });
-    }];
-        }
-    }
-    
+#pragma mark ExportCapture Delegate
+- (void)exportComplete {
     _isExporting = NO;
-    
 }
 
 - (IBAction)overlayPressed:(id)sender {
@@ -340,13 +285,10 @@
 }
 
 - (IBAction)closeView:(id)sender {
-    
     [self dismissViewControllerAnimated:YES completion:nil];
-    
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
 }
 

@@ -1,17 +1,22 @@
-#import <UIKit/UIKit.h>
+//
+//  CameraViewController.h
+//  CustomVideoCamera2
+//
+//  Created by Jeremy on 4/25/15.
+//  Copyright (c) 2015 Jeremy. All rights reserved.
+//
 
+#import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <CoreMedia/CoreMedia.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
-
 #import <AssetsLibrary/AssetsLibrary.h>		//<<Can delete if not storing videos to the photo library.  Delete the assetslibrary framework too requires this)
 
-#define CAPTURE_FRAMES_PER_SECOND		20
-
 #import "Initialize.h"
+#import "ExportCapture.h"
 
-@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, AVAudioPlayerDelegate> {
+@interface CameraViewController : UIViewController <AVCaptureFileOutputRecordingDelegate, AVAudioPlayerDelegate, ExportCaptureProtocal> {
     BOOL isRecording;
     
     AVCaptureSession *session;
@@ -20,6 +25,7 @@
 }
 
 @property (strong, nonatomic) Initialize *initialize;
+@property (strong, nonatomic) ExportCapture *exportCapture;
 
 @property (retain) AVCaptureVideoPreviewLayer *previewLayer;
 

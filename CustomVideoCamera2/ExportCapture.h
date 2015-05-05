@@ -9,8 +9,18 @@
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+
+@protocol ExportCaptureProtocal <NSObject>
+
+- (void)exportComplete;
+
+@end
 
 @interface ExportCapture : NSObject
 
+@property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
+
+- (void)exportDidFinish:(AVAssetExportSession *)exportSession;
 
 @end
