@@ -75,6 +75,14 @@
     
 }
 
+
+#pragma mark AVAudioPlayer Delegate
+- (void)audioPlayerDidFinishPlaying:(AVAudioPlayer *)player successfully:(BOOL)flag {
+    
+    [self performSelector:@selector(pauseSong) withObject:nil afterDelay:0.01];
+    
+}
+
 - (void)playSong {
     
     _isPlaying = YES;
