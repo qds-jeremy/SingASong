@@ -497,22 +497,14 @@
             videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
             [parentLayer addSublayer:videoLayer];
             [parentLayer addSublayer:aLayer];
-            
-//            CATextLayer *titleLayer = [CATextLayer layer];
-//            titleLayer.string = @"Text goes here";
-//            titleLayer.font = CFBridgingRetain(@"Helvetica");
-//            titleLayer.fontSize = 20;
-//            //?? titleLayer.shadowOpacity = 0.5;
-//            titleLayer.alignmentMode = kCAAlignmentCenter;
-//            titleLayer.bounds = CGRectMake(100, 100, 100, 100); //You may need to adjust this for proper display
-//            [parentLayer addSublayer:titleLayer]; //ONLY IF WE ADDED TEXT
+
             
             CATextLayer *text = [CATextLayer layer];
-            text.string = @"Your Text";
-            text.frame = CGRectMake(0, 0, 320, 50);
+            text.string = @"Put In Text Here";
+            text.frame = CGRectMake(100, 200, 320, 50);
             CGFontRef font = CGFontCreateWithFontName((CFStringRef)@"HelveticaNeue-UltraLight");
             text.font = font;
-            text.fontSize = 20;
+            text.fontSize = 40;
             text.foregroundColor = [UIColor whiteColor].CGColor;
             [text display];
             [parentLayer addSublayer:text];
@@ -523,65 +515,14 @@
             AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
             AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
             
-            
-            
-            AVMutableVideoCompositionLayerInstruction *orientationInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
-            AVAssetTrack *firstAssetTrack = [[assetCaptured tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-            UIImageOrientation firstAssetOrientation_  = UIImageOrientationUp;
-            BOOL isFirstAssetPortrait_  = NO;
-            CGAffineTransform firstTransform = firstAssetTrack.preferredTransform;
-            if (firstTransform.a == 0 && firstTransform.b == 1.0 && firstTransform.c == -1.0 && firstTransform.d == 0) {
-                firstAssetOrientation_ = UIImageOrientationLeft;
-                isFirstAssetPortrait_ = YES;
-            }
-            if (firstTransform.a == 0 && firstTransform.b == -1.0 && firstTransform.c == 1.0 && firstTransform.d == 0) {
-                firstAssetOrientation_ =  UIImageOrientationLeft;
-                isFirstAssetPortrait_ = YES;
-            }
-            if (firstTransform.a == 1.0 && firstTransform.b == 0 && firstTransform.c == 0 && firstTransform.d == 1.0) {
-                firstAssetOrientation_ =  UIImageOrientationUp;
-            }
-            if (firstTransform.a == -1.0 && firstTransform.b == 0 && firstTransform.c == 0 && firstTransform.d == -1.0) {
-                firstAssetOrientation_ = UIImageOrientationDown;
-            }
-            [orientationInstruction setTransform:assetCaptured.preferredTransform atTime:kCMTimeZero];
-            [orientationInstruction setOpacity:0.0 atTime:assetCaptured.duration];
-//
-//            instruction.layerInstructions = @[ layerInstruction, firstlayerInstruction ];
-            
             videoComp = [AVMutableVideoComposition videoComposition];
             videoComp.renderSize = videoSize;
             videoComp.frameDuration = CMTimeMake(1, 30);
             videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-            mainInstruction.layerInstructions = @[ layerInstruction, orientationInstruction ];
+            mainInstruction.layerInstructions = @[ layerInstruction ];
             videoComp.instructions = [NSArray arrayWithObject: mainInstruction];
             
-            CGSize naturalSizeFirst, naturalSizeSecond;
-            if(isFirstAssetPortrait_){
-                naturalSizeFirst = CGSizeMake(assetCaptured.naturalSize.height, assetCaptured.naturalSize.width);
-            } else {
-                naturalSizeFirst = assetCaptured.naturalSize;
-            }
-            
-            float renderWidth, renderHeight;
-            if(naturalSizeFirst.width > naturalSizeSecond.width) {
-                renderWidth = naturalSizeFirst.width;
-            } else {
-                renderWidth = naturalSizeSecond.width;
-            }
-            if(naturalSizeFirst.height > naturalSizeSecond.height) {
-                renderHeight = naturalSizeFirst.height;
-            } else {
-                renderHeight = naturalSizeSecond.height;
-            }
-            
-            videoComp.renderSize = CGSizeMake(renderWidth, renderHeight);
-            
         }
-        
-        
-        
-        
         
         if (_isUsingHeadset) {
             // 4 - Music track
@@ -620,144 +561,6 @@
         
     }
 }
-
-//- (void)addAnimation {
-//
-//    NSString *filePath = [[NSBundle mainBundle] pathForResource:videoName ofType:ext];
-//
-//    AVURLAsset* videoAsset = [[AVURLAsset alloc]initWithURL:[NSURL fileURLWithPath:filePath]  options:nil];
-//    
-//    AVMutableComposition* mixComposition = [AVMutableComposition composition];
-//    
-//    AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-//    
-//    AVAssetTrack *clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-//    
-//    [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:clipVideoTrack atTime:kCMTimeZero error:nil];
-//    
-//    [compositionVideoTrack setPreferredTransform:[[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] preferredTransform]];
-//    
-//    CGSize videoSize = [clipVideoTrack naturalSize];
-//    
-//    UIImage *myImage = [UIImage imageNamed:@"29.png"];
-//    CALayer *aLayer = [CALayer layer];
-//    aLayer.contents = (id)myImage.CGImage;
-//    aLayer.frame = CGRectMake(videoSize.width - 65, videoSize.height - 75, 57, 57);
-//    aLayer.opacity = 0.65;
-//    CALayer *parentLayer = [CALayer layer];
-//    CALayer *videoLayer = [CALayer layer];
-//    parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-//    videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-//    [parentLayer addSublayer:videoLayer];
-//    [parentLayer addSublayer:aLayer];
-//    
-//    CATextLayer *titleLayer = [CATextLayer layer];
-//    titleLayer.string = @"Text goes here";
-//    titleLayer.font = CFBridgingRetain(@"Helvetica");
-//    titleLayer.fontSize = videoSize.height / 6;
-//    //?? titleLayer.shadowOpacity = 0.5;
-//    titleLayer.alignmentMode = kCAAlignmentCenter;
-//    titleLayer.bounds = CGRectMake(0, 0, videoSize.width, videoSize.height / 6); //You may need to adjust this for proper display
-//    [parentLayer addSublayer:titleLayer]; //ONLY IF WE ADDED TEXT
-//    
-//    AVMutableVideoComposition* videoComp = [AVMutableVideoComposition videoComposition];
-//    videoComp.renderSize = videoSize;
-//    videoComp.frameDuration = CMTimeMake(1, 30);
-//    videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-//    
-//    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-//    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
-//    AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-//    AVMutableVideoCompositionLayerInstruction* layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
-//    instruction.layerInstructions = [NSArray arrayWithObject:layerInstruction];
-//    videoComp.instructions = [NSArray arrayWithObject: instruction];
-//    
-//    AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];//AVAssetExportPresetPassthrough
-//    assetExport.videoComposition = videoComp;
-//    
-//}
-//
-//- (void)addAnimation2
-//{
-//    NSString *filePath = [[NSBundle mainBundle] pathForResource:videoName ofType:ext];
-//    
-//    AVURLAsset* videoAsset = [[AVURLAsset alloc]initWithURL:[NSURL fileURLWithPath:filePath]  options:nil];
-//    
-//    AVMutableComposition* mixComposition = [AVMutableComposition composition];
-//    
-//    AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-//    
-//    AVAssetTrack *clipVideoTrack = [[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-//    
-//    [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration) ofTrack:clipVideoTrack atTime:kCMTimeZero error:nil];
-//    
-//    [compositionVideoTrack setPreferredTransform:[[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] preferredTransform]];
-//    
-//    CGSize videoSize = [clipVideoTrack naturalSize];
-//    
-//    UIImage *myImage = [UIImage imageNamed:@"29.png"];
-//    CALayer *aLayer = [CALayer layer];
-//    aLayer.contents = (id)myImage.CGImage;
-//    aLayer.frame = CGRectMake(videoSize.width - 65, videoSize.height - 75, 57, 57);
-//    aLayer.opacity = 0.65;
-//    CALayer *parentLayer = [CALayer layer];
-//    CALayer *videoLayer = [CALayer layer];
-//    parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-//    videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-//    [parentLayer addSublayer:videoLayer];
-//    [parentLayer addSublayer:aLayer];
-//    
-//    CATextLayer *titleLayer = [CATextLayer layer];
-//    titleLayer.string = @"Text goes here";
-//    titleLayer.font = CFBridgingRetain(@"Helvetica");
-//    titleLayer.fontSize = videoSize.height / 6;
-//    //?? titleLayer.shadowOpacity = 0.5;
-//    titleLayer.alignmentMode = kCAAlignmentCenter;
-//    titleLayer.bounds = CGRectMake(0, 0, videoSize.width, videoSize.height / 6); //You may need to adjust this for proper display
-//    [parentLayer addSublayer:titleLayer]; //ONLY IF WE ADDED TEXT
-//    
-//    AVMutableVideoComposition* videoComp = [AVMutableVideoComposition videoComposition];
-//    videoComp.renderSize = videoSize;
-//    videoComp.frameDuration = CMTimeMake(1, 30);
-//    videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-//    
-//    AVMutableVideoCompositionInstruction *instruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-//    instruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
-//    AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-//    AVMutableVideoCompositionLayerInstruction* layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
-//    instruction.layerInstructions = [NSArray arrayWithObject:layerInstruction];
-//    videoComp.instructions = [NSArray arrayWithObject: instruction];
-//    
-//    AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];//AVAssetExportPresetPassthrough
-//    assetExport.videoComposition = videoComp;
-//    
-//    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
-//    NSString *documentsDirectory = [paths objectAtIndex:0];
-//    NSString* VideoName = [NSString stringWithFormat:@"%@/mynewwatermarkedvideo.mp4",documentsDirectory];
-//    
-//    
-//    //NSString *exportPath = [NSTemporaryDirectory() stringByAppendingPathComponent:VideoName];
-//    NSURL *exportUrl = [NSURL fileURLWithPath:VideoName];
-//    
-//    if ([[NSFileManager defaultManager] fileExistsAtPath:VideoName])
-//    {
-//        [[NSFileManager defaultManager] removeItemAtPath:VideoName error:nil];
-//    }
-//    
-//    assetExport.outputFileType = AVFileTypeQuickTimeMovie;
-//    assetExport.outputURL = exportUrl;
-//    assetExport.shouldOptimizeForNetworkUse = YES;
-//    
-//    //[strRecordedFilename setString: exportPath];
-//    
-//    [assetExport exportAsynchronouslyWithCompletionHandler:
-//     ^(void ) {
-//         dispatch_async(dispatch_get_main_queue(), ^{
-//             [self exportDidFinish:assetExport];
-//         });
-//     }
-//     ];
-//}
 
 - (void)applyVideoEffectsToComposition:(AVMutableVideoComposition *)composition size:(CGSize)size {
     // 1 - set up the overlay
@@ -805,42 +608,7 @@
     
 }
 
-- (AVMutableVideoComposition *) getVideoComposition:(AVAsset *)asset composition:( AVMutableComposition*)composition{
-    BOOL isPortrait_ = [self isVideoPortrait:asset];
-    
-    
-    AVMutableCompositionTrack *compositionVideoTrack = [composition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
-    
-    
-    AVAssetTrack *videoTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-    [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration) ofTrack:videoTrack atTime:kCMTimeZero error:nil];
-    
-    AVMutableVideoCompositionLayerInstruction *layerInst = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:compositionVideoTrack];
-    
-    CGAffineTransform transform = videoTrack.preferredTransform;
-    [layerInst setTransform:transform atTime:kCMTimeZero];
-    
-    
-    AVMutableVideoCompositionInstruction *inst = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-    inst.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration);
-    inst.layerInstructions = [NSArray arrayWithObject:layerInst];
-    
-    
-    AVMutableVideoComposition *videoComposition = [AVMutableVideoComposition videoComposition];
-    videoComposition.instructions = [NSArray arrayWithObject:inst];
-    
-    CGSize videoSize = videoTrack.naturalSize;
-    if(isPortrait_) {
-        NSLog(@"video is portrait ");
-        videoSize = CGSizeMake(videoSize.height, videoSize.width);
-    }
-    videoComposition.renderSize = videoSize;
-    videoComposition.frameDuration = CMTimeMake(1,30);
-    videoComposition.renderScale = 1.0;
-    return videoComposition;
-}
-
-- (BOOL) isVideoPortrait:(AVAsset *)asset{
+- (BOOL)isVideoPortrait:(AVAsset *)asset{
     BOOL isPortrait = FALSE;
     NSArray *tracks = [asset tracksWithMediaType:AVMediaTypeVideo];
     if([tracks    count] > 0) {
