@@ -22,6 +22,7 @@
 		3F86290A1AEA40D70094B9BA /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F8629091AEA40D70094B9BA /* Foundation.framework */; };
 		3F86290C1AEA40DA0094B9BA /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F86290B1AEA40DA0094B9BA /* AssetsLibrary.framework */; };
 		3F86290F1AEA41790094B9BA /* MusicLibaryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3F86290E1AEA41790094B9BA /* MusicLibaryViewController.m */; };
+		3FA6CE691AF7698F00923F25 /* In_Video_Border.png in Resources */ = {isa = PBXBuildFile; fileRef = 3FA6CE681AF7698F00923F25 /* In_Video_Border.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 		3F86290B1AEA40DA0094B9BA /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		3F86290D1AEA41790094B9BA /* MusicLibaryViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MusicLibaryViewController.h; sourceTree = "<group>"; };
 		3F86290E1AEA41790094B9BA /* MusicLibaryViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MusicLibaryViewController.m; sourceTree = "<group>"; };
+		3FA6CE681AF7698F00923F25 /* In_Video_Border.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = In_Video_Border.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +131,7 @@
 		3F8628DA1AEA3CA20094B9BA /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				3FA6CE681AF7698F00923F25 /* In_Video_Border.png */,
 				3F8628DB1AEA3CA20094B9BA /* Info.plist */,
 				3F8628DC1AEA3CA20094B9BA /* main.m */,
 			);
@@ -232,6 +235,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FA6CE691AF7698F00923F25 /* In_Video_Border.png in Resources */,
 				3F8628E91AEA3CA20094B9BA /* Main.storyboard in Resources */,
 				3F8628EE1AEA3CA20094B9BA /* LaunchScreen.xib in Resources */,
 				3F8628EB1AEA3CA20094B9BA /* Images.xcassets in Resources */,

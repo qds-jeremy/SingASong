@@ -13,6 +13,8 @@
 
 @property (assign, nonatomic) BOOL isPlaying;
 
+@property (assign, nonatomic) BOOL isTouchingSlider;
+
 @property (strong, nonatomic) NSURL *songURL;
 
 @property (strong, nonatomic) AVAsset *assetSongNewStart;

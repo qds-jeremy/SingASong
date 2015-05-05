@@ -35,6 +35,8 @@
     
     [self cameraSetOutputProperties];
     
+    [self sizeCameraForOrientation];
+    
 }
 
 
@@ -87,38 +89,58 @@
 }
 
 - (void)allowMusicToPlay {
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback error: nil];
-    UInt32 doSetProperty = 1;
-    AudioSessionSetProperty (kAudioSessionProperty_OverrideCategoryMixWithOthers, sizeof(doSetProperty), &doSetProperty);
+    
+//    AVAudioSession *audioSession = [AVAudioSession sharedInstance];
+//    NSError *setCategoryError = nil;
+    
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error: nil];
     [[AVAudioSession sharedInstance] setActive: YES error: nil];
+    
+//    if (![audioSession setCategory:AVAudioSessionCategoryPlayback withOptions:AVAudioSessionCategoryOptionMixWithOthers error:&setCategoryError]) {
+//        NSLog(@"audioSessionMixError: %@ %@", setCategoryError, [setCategoryError userInfo]);
+//    }
+    
 }
 
 - (void)startSongAndRecording {
 
-    dispatch_queue_t myQueue = dispatch_queue_create("AudioVideoRecordQueue",NULL);
-    dispatch_async(myQueue, ^{
+//    dispatch_queue_t myQueue = dispatch_queue_create("AudioVideoRecordQueue",NULL);
+//    dispatch_async(myQueue, ^{
+//    
+//        [_audioPlayer play];
+//        [self startRecording];
+//    
+//    });
     
-        [_audioPlayer play];
-        [self startRecording];
-        
-    });
-        
+    [_audioPlayer play];
+//    [_audioPlayer pause];
+    [self startRecording];
+    
 }
 
 - (void)checkForHeadset {
+    
+    _isUsingHeadset = NO;
+    AVAudioSessionRouteDescription* route = [[AVAudioSession sharedInstance] currentRoute];
+    for (AVAudioSessionPortDescription* desc in [route outputs]) {
+        if ([[desc portType] isEqualToString:AVAudioSessionPortHeadphones] || [[desc portType] isEqualToString:@"Headphones"])
+            _isUsingHeadset = YES;
+    }
+
+    /*
     UInt32 routeSize = sizeof (CFStringRef); CFStringRef route;
     AudioSessionGetProperty (kAudioSessionProperty_AudioRoute, &routeSize, &route);
     
     //NSLog(@"Error >>>>>>>>>> :%@", error);
-    /* Known values of route:
-     "Headset"
-     "Headphone"
-     "Speaker"
-     "SpeakerAndMicrophone"
-     "HeadphonesAndMicrophone"
-     "HeadsetInOut"
-     "ReceiverAndMicrophone"
-     "Lineout" */
+//     Known values of route:
+//     "Headset"
+//     "Headphone"
+//     "Speaker"
+//     "SpeakerAndMicrophone"
+//     "HeadphonesAndMicrophone"
+//     "HeadsetInOut"
+//     "ReceiverAndMicrophone"
+//     "Lineout"
     
     NSString *routeStr = (__bridge NSString *)route;
     
@@ -137,10 +159,9 @@
             NSLog(@"Unknown audio route.");
         }
     }
+    
+    */
 }
-
-
-
 
 //---------------------------------
 //----- SETUP CAPTURE SESSION -----
@@ -234,10 +255,9 @@
     //----- DISPLAY THE PREVIEW LAYER -----
     //Display it full screen under out view controller existing controls
     NSLog(@"Display the preview layer");
-    CGRect layerRect = _viewForPreview.layer.bounds;
-    [previewLayer setBounds:layerRect];
-    [previewLayer setPosition:CGPointMake(CGRectGetMidX(layerRect),
-                                          CGRectGetMidY(layerRect))];
+
+    [self sizeCameraForOrientation];
+
     //[[[self view] layer] addSublayer:[[self CaptureManager] previewLayer]];
     //We use this instead so it goes on a layer behind our UI controls (avoids us having to manually bring each control to the front):
     UIView *CameraView = [[UIView alloc] init];
@@ -246,9 +266,16 @@
     
     [[CameraView layer] addSublayer:previewLayer];
     
-    
     //----- START THE CAPTURE SESSION RUNNING -----
     [session startRunning];
+}
+
+- (void)sizeCameraForOrientation {
+    _viewForPreview.frame = CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.height);
+    CGRect layerRect = _viewForPreview.layer.bounds;
+    [previewLayer setBounds:layerRect];
+    [previewLayer setPosition:CGPointMake(CGRectGetMidX(layerRect),
+                                          CGRectGetMidY(layerRect))];
 }
 
 //********** CAMERA SET OUTPUT PROPERTIES **********
@@ -356,6 +383,8 @@
 
 //********** START STOP RECORDING BUTTON **********
 - (IBAction)startStopButtonPressed:(id)sender {
+    if (_isExporting)
+        return;
     
     if (isRecording) {
         [_buttonStartStop setTitle:@"Start" forState:UIControlStateNormal];
@@ -405,6 +434,8 @@
 - (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
 {
     
+    _isExporting = YES;
+    
     NSLog(@"didFinishRecordingToOutputFileAtURL - enter");
     
     BOOL RecordedSuccessfully = YES;
@@ -450,6 +481,11 @@
         [audioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[assetCaptured tracksWithMediaType:AVMediaTypeAudio] firstObject] atTime:kCMTimeZero error:nil];
         audioTrack.preferredVolume = 10;
         
+        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
+        
+            
+        }
+        
         if (_isUsingHeadset) {
             // 4 - Music track
             if (_songURL != nil) {
@@ -462,8 +498,6 @@
                 
             }
         }
-        
-        
         
         // 5 - Get path
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -487,6 +521,28 @@
     }
 }
 
+- (void)applyVideoEffectsToComposition:(AVMutableVideoComposition *)composition size:(CGSize)size {
+    // 1 - set up the overlay
+    CALayer *overlayLayer = [CALayer layer];
+    UIImage *overlayImage = nil;
+    overlayImage = [UIImage imageNamed:@"In_Video_Border.png"];
+    
+    [overlayLayer setContents:(id)[overlayImage CGImage]];
+    overlayLayer.frame = CGRectMake(0, 0, 640, 480);
+    [overlayLayer setMasksToBounds:YES];
+    
+    // 2 - set up the parent layer
+    CALayer *parentLayer = [CALayer layer];
+    CALayer *videoLayer = [CALayer layer];
+    parentLayer.frame = CGRectMake(0, 0, _viewForPreview.frame.size.width, _viewForPreview.frame.size.height);
+    videoLayer.frame = CGRectMake(0, 0, _viewForPreview.frame.size.width, _viewForPreview.frame.size.height);
+    [parentLayer addSublayer:videoLayer];
+    [parentLayer addSublayer:overlayLayer];
+    
+    // 3 - apply magic
+    _composition = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
+}
+
 - (void)exportDidFinish:(AVAssetExportSession *)exportSession {
     
     if (exportSession.status == AVAssetExportSessionStatusCompleted) {
@@ -506,6 +562,8 @@
     }];
         }
     }
+    
+    _isExporting = NO;
     
 }
 
@@ -573,6 +631,17 @@
         }
     }
     return isPortrait;
+}
+
+- (IBAction)overlayPressed:(id)sender {
+    if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Add Overlay"])
+        [_buttonAddOverlay setTitle:@"Overlay Added" forState:UIControlStateNormal];
+    else
+        [_buttonAddOverlay setTitle:@"Add Overlay" forState:UIControlStateNormal];
+}
+
+- (IBAction)textPressed:(id)sender {
+    
 }
 
 - (IBAction)closeView:(id)sender {

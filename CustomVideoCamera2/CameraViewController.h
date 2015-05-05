@@ -19,7 +19,11 @@
 
 @property (retain) AVCaptureVideoPreviewLayer *previewLayer;
 
+@property (strong, nonatomic) AVVideoCompositionCoreAnimationTool *composition;
+
 @property (assign, nonatomic) BOOL isUsingHeadset;
+@property (assign, nonatomic) BOOL isExporting;
+@property (assign, nonatomic) BOOL isVideoAssetPortrait;
 
 //@property (strong, nonatomic) AVAsset *assetSong;
 //@property (strong, nonatomic) AVPlayer *audioPlayer;
@@ -34,6 +38,7 @@
 @property (weak, nonatomic) IBOutlet UIView *viewForPreview;
 @property (weak, nonatomic) IBOutlet UILabel *labelCountdown;
 @property (weak, nonatomic) IBOutlet UIButton *buttonStartStop;
+@property (weak, nonatomic) IBOutlet UIButton *buttonAddOverlay;
 
 - (void)cameraSetOutputProperties;
 

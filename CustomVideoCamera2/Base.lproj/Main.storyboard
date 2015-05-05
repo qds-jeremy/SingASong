@@ -41,7 +41,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
-                                    <segue destination="7de-O0-XYL" kind="show" id="rar-iM-Tpi"/>
+                                    <segue destination="7de-O0-XYL" kind="show" identifier="SetMusicStartTime" id="rar-iM-Tpi"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -101,7 +101,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0:00:00.0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqy-ay-WfJ">
                                 <rect key="frame" x="81" y="86" width="72" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bAq-5x-hob">
@@ -137,6 +137,7 @@
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
                                 <connections>
+                                    <action selector="nextPressed:" destination="7de-O0-XYL" eventType="touchUpInside" id="IZ0-br-oSN"/>
                                     <segue destination="vXZ-lx-hvc" kind="show" identifier="nextWithSong" id="Rxe-GG-TGa"/>
                                 </connections>
                             </button>
@@ -187,7 +188,7 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3eq-qe-NCb" userLabel="Preview View">
                                 <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
                             <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0BH-WS-MDF" userLabel="Controls View">
                                 <rect key="frame" x="0.0" y="540" width="600" height="60"/>
@@ -203,9 +204,33 @@
                                             <action selector="startStopButtonPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="EPk-fW-gQK"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wBe-kH-xpD">
+                                        <rect key="frame" x="77" y="11" width="100" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="Add Overlay">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="overlayPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="rOq-TE-YvU"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8nj-rx-bXK">
+                                        <rect key="frame" x="479" y="11" width="33" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                        <state key="normal" title="Text">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="textPressed:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="E66-4r-eWa"/>
+                                        </connections>
+                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="X0i-E6-MKF">
-                                        <rect key="frame" x="526" y="15" width="46" height="30"/>
+                                        <rect key="frame" x="520" y="11" width="53" height="34"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="Toggle">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
@@ -216,8 +241,12 @@
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstItem="DDw-p2-izc" firstAttribute="leading" secondItem="0BH-WS-MDF" secondAttribute="leading" constant="21" id="BhI-Ll-j4A"/>
+                                    <constraint firstItem="X0i-E6-MKF" firstAttribute="leading" secondItem="8nj-rx-bXK" secondAttribute="trailing" constant="8" id="DTr-z8-Roa"/>
                                     <constraint firstAttribute="bottom" secondItem="X0i-E6-MKF" secondAttribute="bottom" constant="15" id="Dtf-MT-NBG"/>
-                                    <constraint firstAttribute="trailing" secondItem="X0i-E6-MKF" secondAttribute="trailing" constant="28" id="rgk-e3-nnX"/>
+                                    <constraint firstItem="wBe-kH-xpD" firstAttribute="leading" secondItem="DDw-p2-izc" secondAttribute="trailing" constant="16" id="VAh-cq-00A"/>
+                                    <constraint firstAttribute="bottom" secondItem="8nj-rx-bXK" secondAttribute="bottom" constant="15" id="WsP-Wj-FjI"/>
+                                    <constraint firstAttribute="bottom" secondItem="wBe-kH-xpD" secondAttribute="bottom" constant="15" id="baT-Gj-9AO"/>
+                                    <constraint firstAttribute="trailing" secondItem="X0i-E6-MKF" secondAttribute="trailing" constant="27" id="rgk-e3-nnX"/>
                                     <constraint firstAttribute="bottom" secondItem="DDw-p2-izc" secondAttribute="bottom" constant="15" id="sr3-QA-oWI"/>
                                     <constraint firstAttribute="height" constant="60" id="x9U-tx-gQ4"/>
                                 </constraints>
@@ -243,13 +272,17 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="3eq-qe-NCb" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" constant="-20" id="061-s9-Ljg"/>
                             <constraint firstItem="0BH-WS-MDF" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="-16" id="9dm-g9-wgL"/>
+                            <constraint firstAttribute="centerY" secondItem="3eq-qe-NCb" secondAttribute="centerY" id="FNa-Gy-1CE"/>
                             <constraint firstItem="zlz-hj-PgH" firstAttribute="top" secondItem="jyV-Pf-zRb" secondAttribute="bottom" id="Jxu-1i-dH4"/>
+                            <constraint firstItem="3eq-qe-NCb" firstAttribute="width" secondItem="kh9-bI-dsS" secondAttribute="width" id="Z7q-F8-x4z"/>
                             <constraint firstAttribute="centerX" secondItem="E62-T8-vf9" secondAttribute="centerX" id="ZDx-Jj-Nbj"/>
+                            <constraint firstAttribute="centerX" secondItem="3eq-qe-NCb" secondAttribute="centerX" id="fPa-By-hoc"/>
                             <constraint firstAttribute="centerY" secondItem="E62-T8-vf9" secondAttribute="centerY" id="g8g-8R-KBP"/>
+                            <constraint firstItem="3eq-qe-NCb" firstAttribute="height" secondItem="kh9-bI-dsS" secondAttribute="height" id="kdr-sz-yGh"/>
                             <constraint firstItem="3eq-qe-NCb" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leadingMargin" constant="-16" id="nXD-Tt-6vw"/>
                             <constraint firstItem="2fi-mo-0CV" firstAttribute="top" secondItem="0BH-WS-MDF" secondAttribute="bottom" id="o6B-fB-hkM"/>
                             <constraint firstAttribute="trailingMargin" secondItem="3eq-qe-NCb" secondAttribute="trailing" constant="-16" id="pzt-O6-kLF"/>
@@ -257,8 +290,17 @@
                             <constraint firstItem="zlz-hj-PgH" firstAttribute="trailing" secondItem="kh9-bI-dsS" secondAttribute="trailingMargin" id="sNl-xw-TcW"/>
                             <constraint firstAttribute="trailingMargin" secondItem="0BH-WS-MDF" secondAttribute="trailing" constant="-16" id="zM8-V7-oDy"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="061-s9-Ljg"/>
+                                <exclude reference="nXD-Tt-6vw"/>
+                                <exclude reference="pzt-O6-kLF"/>
+                                <exclude reference="qfz-xy-EJj"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
+                        <outlet property="buttonAddOverlay" destination="wBe-kH-xpD" id="Nda-vi-2HQ"/>
                         <outlet property="buttonStartStop" destination="DDw-p2-izc" id="vDK-rt-Uyh"/>
                         <outlet property="labelCountdown" destination="E62-T8-vf9" id="Nd3-tt-ImA"/>
                         <outlet property="viewForPreview" destination="3eq-qe-NCb" id="cyu-0n-0PK"/>
@@ -270,6 +312,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="Rxe-GG-TGa"/>
+        <segue reference="ySy-BH-w2a"/>
     </inferredMetricsTieBreakers>
 </document>

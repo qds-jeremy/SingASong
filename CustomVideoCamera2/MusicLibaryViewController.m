@@ -8,6 +8,7 @@
 
 #import "MusicLibaryViewController.h"
 #import "SetMusicStartTimeViewController.h"
+#import "CameraViewController.h"
 
 @interface MusicLibaryViewController ()
 
@@ -16,6 +17,7 @@
 @implementation MusicLibaryViewController
 
 - (void)viewDidLoad {
+
     [super viewDidLoad];
 
     _songURL = [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] objectForKey:@"previousSong"]];
@@ -23,11 +25,11 @@
 }
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    
-    SetMusicStartTimeViewController *vc = segue.destinationViewController;
-    
-    vc.songURL = _songURL;
-    
+            
+        SetMusicStartTimeViewController *vc = segue.destinationViewController;
+        
+        vc.songURL = _songURL;
+        
 }
 
 - (IBAction)clearSongPressed:(id)sender {

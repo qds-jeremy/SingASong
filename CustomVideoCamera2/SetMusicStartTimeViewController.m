@@ -18,6 +18,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [_slider addTarget:self action:@selector(didStartTouchingSlider:) forControlEvents:UIControlEventTouchDown];
+    [_slider addTarget:self action:@selector(didEndTouchingSlider:) forControlEvents:(UIControlEventTouchUpInside | UIControlEventTouchUpOutside)];
+    
     [self setSongToPlayer];
     
 }
@@ -28,7 +31,7 @@
     
 //    if ([segue.identifier isEqualToString:@"nextWithSong"]) {
     
-        vc.songURL = _songURL;
+    vc.songURL = _songURL;
     
     vc.songStartTime = CMTimeMakeWithSeconds(_slider.value, 1);
         
@@ -56,7 +59,7 @@
     
     float floatSeconds;
     
-    if (_isPlaying) {
+    if (_isPlaying && !_isTouchingSlider) {
         floatSeconds = _audioPlayer.currentTime;
         _slider.value = floatSeconds;
     } else
@@ -118,6 +121,12 @@
     
 }
 
+- (void)didStartTouchingSlider:(id) sender {
+
+        _isTouchingSlider = YES;
+
+}
+
 - (IBAction)sliderMoved:(id)sender {
     
     [self updateTime];
@@ -126,7 +135,16 @@
     
 }
 
+- (void)didEndTouchingSlider:(id)sender {
+    
+    _isTouchingSlider = NO;
+    
+}
+
 - (IBAction)scrubLeftPressed:(id)sender {
+    
+    if (_isPlaying)
+        [self pauseSong];
 
     [self updateTime];
     
@@ -140,6 +158,9 @@
 
 - (IBAction)scrubRightPressed:(id)sender {
 
+    if (_isPlaying)
+        [self pauseSong];
+    
     [self updateTime];
     
     _slider.value = _slider.value + 0.1;
@@ -167,6 +188,13 @@
     
     [self dismissViewControllerAnimated:YES completion:nil];
 
+}
+
+- (IBAction)nextPressed:(id)sender {
+    
+    if (_isPlaying)
+        [self pauseSong];
+    
 }
 
 - (void)didReceiveMemoryWarning {
