@@ -194,7 +194,7 @@
                                 <rect key="frame" x="0.0" y="540" width="600" height="60"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DDw-p2-izc">
-                                        <rect key="frame" x="21" y="11" width="40" height="34"/>
+                                        <rect key="frame" x="8" y="11" width="40" height="34"/>
                                         <fontDescription key="fontDescription" type="boldSystem" pointSize="18"/>
                                         <state key="normal" title="Start">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -205,7 +205,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="wBe-kH-xpD">
-                                        <rect key="frame" x="77" y="11" width="100" height="34"/>
+                                        <rect key="frame" x="56" y="11" width="100" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="Add Overlay">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -216,7 +216,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8nj-rx-bXK">
-                                        <rect key="frame" x="416" y="11" width="96" height="34"/>
+                                        <rect key="frame" x="435" y="11" width="96" height="34"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="96" id="ZSP-tx-9cW"/>
                                         </constraints>
@@ -230,7 +230,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="X0i-E6-MKF">
-                                        <rect key="frame" x="520" y="11" width="53" height="34"/>
+                                        <rect key="frame" x="539" y="11" width="53" height="34"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <state key="normal" title="Toggle">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -243,13 +243,13 @@
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="DDw-p2-izc" firstAttribute="leading" secondItem="0BH-WS-MDF" secondAttribute="leading" constant="21" id="BhI-Ll-j4A"/>
+                                    <constraint firstItem="DDw-p2-izc" firstAttribute="leading" secondItem="0BH-WS-MDF" secondAttribute="leading" constant="8" id="BhI-Ll-j4A"/>
                                     <constraint firstItem="X0i-E6-MKF" firstAttribute="leading" secondItem="8nj-rx-bXK" secondAttribute="trailing" constant="8" id="DTr-z8-Roa"/>
                                     <constraint firstAttribute="bottom" secondItem="X0i-E6-MKF" secondAttribute="bottom" constant="15" id="Dtf-MT-NBG"/>
-                                    <constraint firstItem="wBe-kH-xpD" firstAttribute="leading" secondItem="DDw-p2-izc" secondAttribute="trailing" constant="16" id="VAh-cq-00A"/>
+                                    <constraint firstItem="wBe-kH-xpD" firstAttribute="leading" secondItem="DDw-p2-izc" secondAttribute="trailing" constant="8" id="VAh-cq-00A"/>
                                     <constraint firstAttribute="bottom" secondItem="8nj-rx-bXK" secondAttribute="bottom" constant="15" id="WsP-Wj-FjI"/>
                                     <constraint firstAttribute="bottom" secondItem="wBe-kH-xpD" secondAttribute="bottom" constant="15" id="baT-Gj-9AO"/>
-                                    <constraint firstAttribute="trailing" secondItem="X0i-E6-MKF" secondAttribute="trailing" constant="27" id="rgk-e3-nnX"/>
+                                    <constraint firstAttribute="trailing" secondItem="X0i-E6-MKF" secondAttribute="trailing" constant="8" id="rgk-e3-nnX"/>
                                     <constraint firstAttribute="bottom" secondItem="DDw-p2-izc" secondAttribute="bottom" constant="15" id="sr3-QA-oWI"/>
                                     <constraint firstAttribute="height" constant="60" id="x9U-tx-gQ4"/>
                                 </constraints>
@@ -266,6 +266,7 @@
                                     <constraint firstAttribute="width" constant="46" id="Pv5-fB-E0Z"/>
                                     <constraint firstAttribute="height" constant="46" id="ULk-p1-xSS"/>
                                 </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="28"/>
                                 <state key="normal" title="X">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>

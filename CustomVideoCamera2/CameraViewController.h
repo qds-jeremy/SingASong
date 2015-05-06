@@ -11,6 +11,7 @@
 #import <CoreMedia/CoreMedia.h>
 #import <AVFoundation/AVFoundation.h>
 #import <AudioToolbox/AudioToolbox.h>
+#import <CommonCrypto/CommonDigest.h>
 #import <AssetsLibrary/AssetsLibrary.h>		//<<Can delete if not storing videos to the photo library.  Delete the assetslibrary framework too requires this)
 
 #import "Initialize.h"
@@ -34,6 +35,8 @@
 @property (assign, nonatomic) BOOL isUsingHeadset;
 @property (assign, nonatomic) BOOL isExporting;
 @property (assign, nonatomic) BOOL isVideoAssetPortrait;
+
+@property (assign, nonatomic) float filmedOrientationOfScreen;
 
 //@property (strong, nonatomic) AVAsset *assetSong;
 //@property (strong, nonatomic) AVPlayer *audioPlayer;

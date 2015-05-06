@@ -79,6 +79,7 @@
     
     [self setPreviewLayer:[[AVCaptureVideoPreviewLayer alloc] initWithSession:session]];
     [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
+    _filmedOrientationOfScreen = UIInterfaceOrientationPortrait;
     [[self previewLayer] setVideoGravity:AVLayerVideoGravityResizeAspectFill];
     
     output = [initialize cameraOutputSettingsForSession:session];
@@ -104,47 +105,22 @@
 
 - (void)cameraSetOutputProperties {
     if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationPortrait) {
+        _filmedOrientationOfScreen = UIInterfaceOrientationPortrait;
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationPortrait];
     } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeLeft) {
+        _filmedOrientationOfScreen = UIInterfaceOrientationLandscapeLeft;
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeLeft];
     } else if ([[UIDevice currentDevice] orientation] == UIInterfaceOrientationLandscapeRight) {
+        _filmedOrientationOfScreen = UIInterfaceOrientationLandscapeRight;
         [previewLayer.connection setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
     }
 }
 
-- (IBAction)cameraToggleButtonPressed:(id)sender {
-    if ([[AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo] count] > 1) {  //  Only do if device has multiple cameras
-        AVCaptureDeviceInput *newVideoInput = [initialize getNewViewInputForDeviceInput:deviceInput];
-        if (newVideoInput != nil) {
-            [session beginConfiguration];   //  We can now change the inputs and output configuration.  Use commitConfiguration to end
-            [session removeInput:deviceInput];
-            if ([session canAddInput:newVideoInput]) {
-                [session addInput:newVideoInput];
-                deviceInput = newVideoInput;
-            } else {
-                [session addInput:deviceInput];
-            }
-            [self cameraSetOutputProperties];
-            [session commitConfiguration];
-        }
-    }
-}
 
-- (IBAction)startStopButtonPressed:(id)sender {
-    if (_isExporting)
-        return;
-    
-    if (isRecording) {
-        [_buttonStartStop setTitle:@"Start" forState:UIControlStateNormal];
-        [self stopRecording];
-    } else {
-        isRecording = YES;
-        [_buttonStartStop setTitle:@"Stop" forState:UIControlStateNormal];
-        [self startCountdown];
-    }
-}
 
 - (void)startRecording {
+    _filmedOrientationOfScreen = UIDevice.currentDevice.orientation;
+    
     //Create temporary URL to record to
     NSString *outputPath = [[NSString alloc] initWithFormat:@"%@%@", NSTemporaryDirectory(), @"output.mov"];
     NSURL *outputURL = [[NSURL alloc] initFileURLWithPath:outputPath];
@@ -181,7 +157,7 @@
         AVAsset *assetCaptured = [AVAsset assetWithURL:outputFileURL];
         // 1 - Create AVMutableComposition object. This object will hold your AVMutableCompositionTrack instances.
         AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
-        
+
         // 2 - Create video track
         AVMutableCompositionTrack *videoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
         [videoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0] atTime:kCMTimeZero error:nil];
@@ -190,47 +166,6 @@
         AVMutableCompositionTrack *audioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:1];
         [audioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, assetCaptured.duration) ofTrack:[[assetCaptured tracksWithMediaType:AVMediaTypeAudio] firstObject] atTime:kCMTimeZero error:nil];
         audioTrack.preferredVolume = 10;
-        
-        AVMutableVideoComposition *videoComp;
-        CALayer *parentLayer = [CALayer layer];
-        CALayer *videoLayer = [CALayer layer];
-        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
-        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
-            
-            UIImage *myImage = [UIImage imageNamed:@"In_Video_Border.png"];
-            CALayer *aLayer = [CALayer layer];
-            aLayer.contents = (id)myImage.CGImage;
-            aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-            parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-            videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-            [parentLayer addSublayer:videoLayer];
-            [parentLayer addSublayer:aLayer];
-
-            
-            CATextLayer *text = [CATextLayer layer];
-            text.string = @"Put In Text Here";
-            text.frame = CGRectMake(100, 200, 320, 50);
-            CGFontRef font = CGFontCreateWithFontName((CFStringRef)@"HelveticaNeue-UltraLight");
-            text.font = font;
-            text.fontSize = 40;
-            text.foregroundColor = [UIColor whiteColor].CGColor;
-            [text display];
-            [parentLayer addSublayer:text];
-            
-            
-            AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-            mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
-            AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-            AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
-            
-            videoComp = [AVMutableVideoComposition videoComposition];
-            videoComp.renderSize = videoSize;
-            videoComp.frameDuration = CMTimeMake(1, 30);
-            videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-            mainInstruction.layerInstructions = @[ layerInstruction ];
-            videoComp.instructions = [NSArray arrayWithObject: mainInstruction];
-            
-        }
         
         if (_isUsingHeadset) {
             // 4 - Music track
@@ -245,13 +180,75 @@
             }
         }
         
-        // 5 - Get path
+        // 4 - Set video track orientation to match orientation filmed in
+        AVMutableVideoComposition *videoComp = [AVMutableVideoComposition videoComposition];
+        AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+        mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, assetCaptured.duration);
+        
+        if (_filmedOrientationOfScreen == 4) {
+            CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
+            videoTrack.preferredTransform = rotationTransform;
+        } else if (_filmedOrientationOfScreen == 1) {
+            CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
+            videoTrack.preferredTransform = rotationTransform;
+        }
+        
+        //  5 Add animation overlays
+        BOOL addAnimationInstructionLayer = NO;
+        CALayer *parentLayer = [CALayer layer];
+        CALayer *videoLayer = [CALayer layer];
+        [parentLayer addSublayer:videoLayer];
+        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
+        parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+        videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+        
+        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
+        
+            addAnimationInstructionLayer = YES;
+            UIImage *insideBorderImage = [UIImage imageNamed:@"In_Video_Border.png"];
+            CALayer *aLayer = [CALayer layer];
+            aLayer.contents = (id)insideBorderImage.CGImage;
+            aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+            [parentLayer addSublayer:aLayer];
+        
+        }
+        
+        if ([_buttonAddText.titleLabel.text isEqualToString:@"Text Added"]) {
+            
+            addAnimationInstructionLayer = YES;
+            CATextLayer *text = [CATextLayer layer];
+            text.string = @"Put In Text Here";
+            text.frame = CGRectMake(100, 200, 320, 50);
+            CGFontRef font = CGFontCreateWithFontName((CFStringRef)@"HelveticaNeue-UltraLight");
+            text.font = font;
+            text.fontSize = 40;
+            text.foregroundColor = [UIColor whiteColor].CGColor;
+            [text display];
+            [parentLayer addSublayer:text];
+            
+        }
+        
+        if (addAnimationInstructionLayer) {
+
+            mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
+            AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+            AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
+            
+            videoComp.renderSize = videoSize;
+            videoComp.frameDuration = CMTimeMake(1, 30);
+            videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
+            mainInstruction.layerInstructions = @[ layerInstruction ];
+            videoComp.instructions = [NSArray arrayWithObject: mainInstruction];
+            
+        }
+        
+        // 6 - Get path
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsDirectory = [paths objectAtIndex:0];
         NSString *myPathDocs = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"mergeVideo-%d.mov",arc4random() % 1000]];
         NSURL *url = [NSURL fileURLWithPath:myPathDocs];
         
-        // 6 - Create exporter
+        // 7 - Create exporter
         AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
         exporter.outputURL = url;
         exporter.outputFileType = AVFileTypeQuickTimeMovie;
@@ -273,6 +270,38 @@
     _isExporting = NO;
 }
 
+- (IBAction)cameraToggleButtonPressed:(id)sender {
+    if ([[AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo] count] > 1) {  //  Only do if device has multiple cameras
+        AVCaptureDeviceInput *newVideoInput = [initialize getNewViewInputForDeviceInput:deviceInput];
+        if (newVideoInput != nil) {
+            [session beginConfiguration];   //  We can now change the inputs and output configuration.  Use commitConfiguration to end
+            [session removeInput:deviceInput];
+            if ([session canAddInput:newVideoInput]) {
+                [session addInput:newVideoInput];
+                deviceInput = newVideoInput;
+            } else {
+                [session addInput:deviceInput];
+            }
+            [self cameraSetOutputProperties];
+            [session commitConfiguration];
+        }
+    }
+}
+
+- (IBAction)startStopButtonPressed:(id)sender {
+    if (_isExporting)
+        return;
+    
+    if (isRecording) {
+        [_buttonStartStop setTitle:@"Start" forState:UIControlStateNormal];
+        [self stopRecording];
+    } else {
+        isRecording = YES;
+        [_buttonStartStop setTitle:@"Stop" forState:UIControlStateNormal];
+        [self startCountdown];
+    }
+}
+
 - (IBAction)overlayPressed:(id)sender {
     if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Add Overlay"])
         [_buttonAddOverlay setTitle:@"Overlay Added" forState:UIControlStateNormal];
@@ -281,7 +310,10 @@
 }
 
 - (IBAction)textPressed:(id)sender {
-    
+    if ([_buttonAddText.titleLabel.text isEqualToString:@"Text"])
+        [_buttonAddText setTitle:@"Text Added" forState:UIControlStateNormal];
+    else
+        [_buttonAddText setTitle:@"Text" forState:UIControlStateNormal];
 }
 
 - (IBAction)closeView:(id)sender {
