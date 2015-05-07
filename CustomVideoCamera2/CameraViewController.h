@@ -36,6 +36,8 @@
 @property (assign, nonatomic) BOOL isExporting;
 @property (assign, nonatomic) BOOL isVideoAssetPortrait;
 
+@property (assign, nonatomic) float screenWidth;
+@property (assign, nonatomic) float screenHeight;
 @property (assign, nonatomic) float filmedOrientationOfScreen;
 
 @property (assign, nonatomic) CMTime songStartTime;

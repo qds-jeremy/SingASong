@@ -21,6 +21,8 @@
 
 @property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
 
-- (void)exportDidFinish:(AVAssetExportSession *)exportSession;
+@property (strong, nonatomic) NSURL *exportURL;
+
+- (void)exportDidFinish:(AVAssetExportSession *)exportSession addAnimationLayerForOverlay:(BOOL)hasOverlay forText:(BOOL)hasText;
 
 @end
