@@ -11,7 +11,7 @@
 @implementation ExportCapture
 
 - (void)exportDidFinish:(AVAssetExportSession *)exportSession {
-    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+//    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
         NSURL *outputURL = exportSession.outputURL;
         ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
         if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {
@@ -28,7 +28,11 @@
             }];
         }
         [_delegate exportComplete];
-    }
+//    } else {
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"did not get true for AVAssetExportSessionStatusCompleted" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//        [alert show];
+//
+//    }
 }
 
 @end

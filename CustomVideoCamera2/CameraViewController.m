@@ -184,7 +184,9 @@
         AVMutableVideoComposition *videoComp = [AVMutableVideoComposition videoComposition];
         AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
         mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, assetCaptured.duration);
-        
+
+        //  This code does work, but perhaps best practice is to rotate the video via an instruction layer?
+
         if (_filmedOrientationOfScreen == 4) {
             CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
             videoTrack.preferredTransform = rotationTransform;
@@ -198,7 +200,8 @@
         CALayer *parentLayer = [CALayer layer];
         CALayer *videoLayer = [CALayer layer];
         [parentLayer addSublayer:videoLayer];
-        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
+//        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
+        CGSize videoSize = [videoTrack naturalSize];
         parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
         videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
         
@@ -231,8 +234,29 @@
         if (addAnimationInstructionLayer) {
 
             mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
-            AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+//            AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
             AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
+            
+            
+//            working on this here
+//            the rotation works if no anymationtool layer is made
+//            otherwise, the rotation screws up
+            BOOL isPortrait = NO;
+            if (_filmedOrientationOfScreen == 4) {
+//                CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2 * 2);
+//                [layerInstruction setTransform:transform atTime:kCMTimeZero];
+            } else if (_filmedOrientationOfScreen == 1) {
+//                CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2);
+//                [layerInstruction setTransform:transform atTime:kCMTimeZero];
+                isPortrait = YES;
+            }
+            
+            CGSize naturalSize;
+            if(isPortrait){
+                naturalSize = CGSizeMake(videoTrack.naturalSize.height, videoTrack.naturalSize.width);
+            } else {
+                naturalSize = videoTrack.naturalSize;
+            }
             
             videoComp.renderSize = videoSize;
             videoComp.frameDuration = CMTimeMake(1, 30);
@@ -246,11 +270,11 @@
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsDirectory = [paths objectAtIndex:0];
         NSString *myPathDocs = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"mergeVideo-%d.mov",arc4random() % 1000]];
-        NSURL *url = [NSURL fileURLWithPath:myPathDocs];
+        NSURL *exportURL = [NSURL fileURLWithPath:myPathDocs];
         
         // 7 - Create exporter
         AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
-        exporter.outputURL = url;
+        exporter.outputURL = exportURL;
         exporter.outputFileType = AVFileTypeQuickTimeMovie;
         exporter.shouldOptimizeForNetworkUse = YES;
         
