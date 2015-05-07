@@ -180,13 +180,8 @@
             }
         }
         
-        // 4 - Set video track orientation to match orientation filmed in
-        AVMutableVideoComposition *videoComp = [AVMutableVideoComposition videoComposition];
-        AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-        mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, assetCaptured.duration);
-
         //  This code does work, but perhaps best practice is to rotate the video via an instruction layer?
-
+ 
         if (_filmedOrientationOfScreen == 4) {
             CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
             videoTrack.preferredTransform = rotationTransform;
@@ -194,77 +189,89 @@
             CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
             videoTrack.preferredTransform = rotationTransform;
         }
+ 
         
-        //  5 Add animation overlays
-        BOOL addAnimationInstructionLayer = NO;
-        CALayer *parentLayer = [CALayer layer];
-        CALayer *videoLayer = [CALayer layer];
-        [parentLayer addSublayer:videoLayer];
-//        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
-        CGSize videoSize = [videoTrack naturalSize];
-        parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-        videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+        // 3.1 - Create AVMutableVideoCompositionInstruction
+        AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+        mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, assetCaptured.duration);
         
-        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
+        // 3.2 - Create an AVMutableVideoCompositionLayerInstruction for the video track and fix the orientation.
+        AVMutableVideoCompositionLayerInstruction *videolayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
+        AVAssetTrack *videoAssetTrack = [[assetCaptured tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+        UIImageOrientation videoAssetOrientation_  = UIImageOrientationUp;
+        BOOL isVideoAssetPortrait_  = NO;
+        CGAffineTransform videoTransform = videoTrack.preferredTransform;
+        if (videoTransform.a == 0 && videoTransform.b == 1.0 && videoTransform.c == -1.0 && videoTransform.d == 0) {
+            videoAssetOrientation_ = UIImageOrientationRight;
+            isVideoAssetPortrait_ = YES;
+        }
+        if (videoTransform.a == 0 && videoTransform.b == -1.0 && videoTransform.c == 1.0 && videoTransform.d == 0) {
+            videoAssetOrientation_ =  UIImageOrientationLeft;
+            isVideoAssetPortrait_ = YES;
+        }
+        if (videoTransform.a == 1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == 1.0) {
+            videoAssetOrientation_ =  UIImageOrientationUp;
+        }
+        if (videoTransform.a == -1.0 && videoTransform.b == 0 && videoTransform.c == 0 && videoTransform.d == -1.0) {
+            videoAssetOrientation_ = UIImageOrientationDown;
+        }
+        [videolayerInstruction setTransform:videoTrack.preferredTransform atTime:kCMTimeZero];
+        [videolayerInstruction setOpacity:0.0 atTime:assetCaptured.duration];
         
-            addAnimationInstructionLayer = YES;
-            UIImage *insideBorderImage = [UIImage imageNamed:@"In_Video_Border.png"];
-            CALayer *aLayer = [CALayer layer];
-            aLayer.contents = (id)insideBorderImage.CGImage;
-            aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-            [parentLayer addSublayer:aLayer];
+        // 3.3 - Add instructions
+        mainInstruction.layerInstructions = [NSArray arrayWithObjects:videolayerInstruction,nil];
         
+        AVMutableVideoComposition *mainCompositionInst = [AVMutableVideoComposition videoComposition];
+        
+        CGSize naturalSize;
+        if(isVideoAssetPortrait_){
+            naturalSize = CGSizeMake(videoAssetTrack.naturalSize.height, videoAssetTrack.naturalSize.width);
+        } else {
+            naturalSize = videoAssetTrack.naturalSize;
         }
         
-        if ([_buttonAddText.titleLabel.text isEqualToString:@"Text Added"]) {
-            
-            addAnimationInstructionLayer = YES;
-            CATextLayer *text = [CATextLayer layer];
-            text.string = @"Put In Text Here";
-            text.frame = CGRectMake(100, 200, 320, 50);
-            CGFontRef font = CGFontCreateWithFontName((CFStringRef)@"HelveticaNeue-UltraLight");
-            text.font = font;
-            text.fontSize = 40;
-            text.foregroundColor = [UIColor whiteColor].CGColor;
-            [text display];
-            [parentLayer addSublayer:text];
-            
-        }
+        float renderWidth, renderHeight;
+        renderWidth = naturalSize.width;
+        renderHeight = naturalSize.height;
+        mainCompositionInst.renderSize = CGSizeMake(renderWidth, renderHeight);
+        mainCompositionInst.instructions = [NSArray arrayWithObject:mainInstruction];
+        mainCompositionInst.frameDuration = CMTimeMake(1, 30);
         
-        if (addAnimationInstructionLayer) {
-
-            mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
-//            AVAssetTrack *videoTrack = [[mixComposition tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
-            AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
-            
-            
-//            working on this here
-//            the rotation works if no anymationtool layer is made
-//            otherwise, the rotation screws up
-            BOOL isPortrait = NO;
-            if (_filmedOrientationOfScreen == 4) {
-//                CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2 * 2);
-//                [layerInstruction setTransform:transform atTime:kCMTimeZero];
-            } else if (_filmedOrientationOfScreen == 1) {
-//                CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2);
-//                [layerInstruction setTransform:transform atTime:kCMTimeZero];
-                isPortrait = YES;
-            }
-            
-            CGSize naturalSize;
-            if(isPortrait){
-                naturalSize = CGSizeMake(videoTrack.naturalSize.height, videoTrack.naturalSize.width);
-            } else {
-                naturalSize = videoTrack.naturalSize;
-            }
-            
-            videoComp.renderSize = videoSize;
-            videoComp.frameDuration = CMTimeMake(1, 30);
-            videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-            mainInstruction.layerInstructions = @[ layerInstruction ];
-            videoComp.instructions = [NSArray arrayWithObject: mainInstruction];
-            
-        }
+//        //  5 Add animation overlays
+//        BOOL addAnimationInstructionLayer = NO;
+//        CALayer *parentLayer = [CALayer layer];
+//        CALayer *videoLayer = [CALayer layer];
+//        [parentLayer addSublayer:videoLayer];
+////        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
+//        CGSize videoSize = [videoTrack naturalSize];
+//        parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+//        videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+//        
+//        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
+//        
+//            addAnimationInstructionLayer = YES;
+//            UIImage *insideBorderImage = [UIImage imageNamed:@"In_Video_Border.png"];
+//            CALayer *aLayer = [CALayer layer];
+//            aLayer.contents = (id)insideBorderImage.CGImage;
+//            aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+//            [parentLayer addSublayer:aLayer];
+//        
+//        }
+//        
+//        if ([_buttonAddText.titleLabel.text isEqualToString:@"Text Added"]) {
+//            
+//            addAnimationInstructionLayer = YES;
+//            CATextLayer *text = [CATextLayer layer];
+//            text.string = @"Put In Text Here";
+//            text.frame = CGRectMake(100, 200, 320, 50);
+//            CGFontRef font = CGFontCreateWithFontName((CFStringRef)@"HelveticaNeue-UltraLight");
+//            text.font = font;
+//            text.fontSize = 40;
+//            text.foregroundColor = [UIColor whiteColor].CGColor;
+//            [text display];
+//            [parentLayer addSublayer:text];
+//            
+//        }
         
         // 6 - Get path
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -279,7 +286,7 @@
         exporter.shouldOptimizeForNetworkUse = YES;
         
         if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"])
-            exporter.videoComposition = videoComp;
+            exporter.videoComposition = mainCompositionInst;
         
         [exporter exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{

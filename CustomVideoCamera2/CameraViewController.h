@@ -38,14 +38,9 @@
 
 @property (assign, nonatomic) float filmedOrientationOfScreen;
 
-//@property (strong, nonatomic) AVAsset *assetSong;
-//@property (strong, nonatomic) AVPlayer *audioPlayer;
-
 @property (assign, nonatomic) CMTime songStartTime;
 
 @property (strong, nonatomic) NSURL *songURL;
-@property (strong, nonatomic) AVAsset *assetCaptured;
-@property (strong, nonatomic) AVMutableCompositionTrack *videoTrack
 @property (strong, nonatomic) AVAudioPlayer *audioPlayer;
 
 @property (strong, nonatomic) AVMutableVideoCompositionInstruction *mainInstruction;
