@@ -213,7 +213,7 @@
         NSURL *exportURL = [NSURL fileURLWithPath:exportPath];
         
         // 7 - Create exporter
-        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
         exportSession.outputURL = exportURL;
         exportSession.shouldOptimizeForNetworkUse = YES;
         exportSession.outputFileType = AVFileTypeQuickTimeMovie;
@@ -221,9 +221,16 @@
         [exportSession exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 
-                if (didAddOverlay || didAddText)
-                    [[ExportCapture new] addOverlayForVideoAtURL:exportSession.outputURL addOverlay:didAddOverlay addText:didAddText originalPreferredRotation:rotationTransform filmedInOrientaiton:_filmedOrientationOfScreen];
-                
+                if (didAddOverlay || didAddText) {
+                    ExportCapture *exportCaptureHandler = [ExportCapture new];
+                    exportCaptureHandler.captureAsset = assetCaptured;
+                    exportCaptureHandler.preferredTransform = rotationTransform;
+                    exportCaptureHandler.filmedOrientation = _filmedOrientationOfScreen;
+                    
+                    [exportCaptureHandler addOverlayForVideoAtURL:exportURL addOverlay:didAddOverlay addText:didAddText];
+                }
+//                    [[ExportCapture new] exportDidFinish:exportSession];
+                    
 //                [self exportDidFinish:exportSession];
                 
             });

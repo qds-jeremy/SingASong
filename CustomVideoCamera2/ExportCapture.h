@@ -21,8 +21,14 @@
 
 @property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
 
-@property (strong, nonatomic) AVAsset *videoAsset;
+@property (assign, nonatomic) int filmedOrientation;
 
-- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText originalPreferredRotation:(CGAffineTransform)preferredTransform filmedInOrientaiton:(int)filmedOrientation;
+@property (assign, nonatomic) CGAffineTransform preferredTransform;
+
+@property (strong, nonatomic) AVAsset *captureAsset;
+
+- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText;
+
+- (void)exportDidFinish:(AVAssetExportSession*)session;
 
 @end

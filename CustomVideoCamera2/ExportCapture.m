@@ -11,7 +11,9 @@
 
 @implementation ExportCapture
 
-- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText originalPreferredRotation:(CGAffineTransform)preferredTransform filmedInOrientaiton:(int)filmedOrientation {
+@synthesize preferredTransform, filmedOrientation;
+
+- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText  {
     
     AVURLAsset *videoAsset = [[AVURLAsset alloc]initWithURL:videoURL  options:nil];
     
@@ -30,15 +32,16 @@
     CALayer *parentLayer = [CALayer layer];
     parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
 
-    if (filmedOrientation == 4) {
+    if (filmedOrientation == 1) {
+        //        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
+        //        videoTrack.preferredTransform = rotationTransform;
+//        parentLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(-M_PI_2));
+    } else if (filmedOrientation == 4) {
 //        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
 //        videoTrack.preferredTransform = rotationTransform;
                 parentLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(M_PI_2 * 2));
-    } else if (filmedOrientation == 1) {
-//        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
-//        videoTrack.preferredTransform = rotationTransform;
-                parentLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(-M_PI_2));
     }
+    
     CALayer *videoLayer = [CALayer layer];
     
     //  Add image overlay
@@ -52,11 +55,15 @@
     
     //  Add text overlay
     CATextLayer *titleLayer = [CATextLayer layer];
-    titleLayer.string = @"Text";
+    titleLayer.string = @"Hi";
     titleLayer.font = CFBridgingRetain(@"Helvetica");
     titleLayer.fontSize = videoSize.height / 6;
     titleLayer.alignmentMode = kCAAlignmentCenter;
-    titleLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(M_PI_2));
+    if (filmedOrientation == 1)
+        titleLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(M_PI_2));
+    else if (filmedOrientation == 4)
+        titleLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(M_PI_2 * 2));
+    
     titleLayer.frame = CGRectMake(videoSize.height / 2 - videoSize.height / 4, videoSize.width / 2 - videoSize.width / 4, videoSize.height / 4, videoSize.width / 4);
     [parentLayer addSublayer:titleLayer];
     
@@ -72,10 +79,11 @@
     instruction.layerInstructions = [NSArray arrayWithObject:layerInstruction];
     videoComposition.instructions = [NSArray arrayWithObject: instruction];
     
-    videoComposition.renderSize = parentLayer.bounds.size;
-    
-    AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
-    assetExport.videoComposition = videoComposition;
+//    if (filmedOrientation == 1) {
+//        CGAffineTransform tranformMake = CGAffineTransformMakeRotation(M_PI_2);
+//        [layerInstruction setTransform:tranformMake atTime:kCMTimeZero];
+//        videoComposition.renderSize = CGSizeMake(parentLayer.bounds.size.height, parentLayer.bounds.size.width);
+//    }
     
     // 6 - Get path
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -84,21 +92,28 @@
     NSString *exportPath = [videosDirectory stringByAppendingPathComponent:[[Initialize new] getFileNameForVideo]];
     
     NSURL *exportURL = [NSURL fileURLWithPath:exportPath];
-        
+
+    AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
     assetExport.outputFileType = AVFileTypeQuickTimeMovie;
     assetExport.outputURL = exportURL;
     assetExport.shouldOptimizeForNetworkUse = YES;
+    assetExport.videoComposition = videoComposition;
     
     //[strRecordedFilename setString: exportPath];
     
     [assetExport exportAsynchronouslyWithCompletionHandler:^(void) {
          dispatch_async(dispatch_get_main_queue(),^{
-             [self exportDidFinish:assetExport];
-//             [self reorientVideoWithURL:exportURL originalPreferredRotation:preferredTransform filmedInOrientation:filmedOrientation];
+
+             if (filmedOrientation != 1)
+                 [self exportDidFinish:assetExport];
+             else
+                 [self reorientVideoWithURL:exportURL originalPreferredRotation:preferredTransform filmedInOrientation:filmedOrientation];
+             
          });
      }];
 }
 
+//  Rotate back to portrait
 - (void)reorientVideoWithURL:(NSURL *)videoURL originalPreferredRotation:(CGAffineTransform)preferredTransform filmedInOrientation:(int)filmedOrientation {
 
     AVAsset *asset = [AVAsset assetWithURL:videoURL];
@@ -114,15 +129,40 @@
     AVMutableCompositionTrack *audioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:1];
     [audioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, asset.duration) ofTrack:[[asset tracksWithMediaType:AVMediaTypeAudio] firstObject] atTime:kCMTimeZero error:nil];
     
-    if (filmedOrientation == 4) {
-        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
-        videoTrack.preferredTransform = rotationTransform;
-    } else if (filmedOrientation == 1) {
-        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
-        videoTrack.preferredTransform = rotationTransform;
-    }
+//    // 3.1 - Create AVMutableVideoCompositionInstruction
+//    AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
+//    mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, asset.duration);
+//    
+//    // 3.2 - Create an AVMutableVideoCompositionLayerInstruction for the video track and fix the orientation.
+//    AVMutableVideoCompositionLayerInstruction *videolayerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
+//    AVAssetTrack *videoAssetTrack = [[asset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+//
+//    [videolayerInstruction setTransform:videoAssetTrack.preferredTransform atTime:kCMTimeZero];
+//    [videolayerInstruction setOpacity:0.0 atTime:asset.duration];
+//    
+//    // 3.3 - Add instructions
+//    mainInstruction.layerInstructions = [NSArray arrayWithObjects:videolayerInstruction,nil];
+//    
+//    AVMutableVideoComposition *mainCompositionInst = [AVMutableVideoComposition videoComposition];
+//    
+//    CGSize naturalSize;
+//    
+////    if(isVideoAssetPortrait_){
+//        naturalSize = CGSizeMake(videoAssetTrack.naturalSize.height, videoAssetTrack.naturalSize.width);
+////    } else {
+////        naturalSize = videoAssetTrack.naturalSize;
+////    }
+//    
+//    float renderWidth, renderHeight;
+//    renderWidth = naturalSize.width;
+//    renderHeight = naturalSize.height;
+//    mainCompositionInst.renderSize = CGSizeMake(renderWidth, renderHeight);
+//    mainCompositionInst.instructions = [NSArray arrayWithObject:mainInstruction];
+//    mainCompositionInst.frameDuration = CMTimeMake(1, 30);
     
-    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
+    [videoTrack setPreferredTransform:_captureAsset.preferredTransform];
+    
+    AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
     exportSession.outputURL = videoURL;
     exportSession.shouldOptimizeForNetworkUse = YES;
     exportSession.outputFileType = AVFileTypeQuickTimeMovie;
