@@ -28,6 +28,17 @@
     CGSize videoSize = [clipVideoTrack naturalSize];
     
     CALayer *parentLayer = [CALayer layer];
+    parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
+
+    if (filmedOrientation == 4) {
+//        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
+//        videoTrack.preferredTransform = rotationTransform;
+                parentLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(M_PI_2 * 2));
+    } else if (filmedOrientation == 1) {
+//        CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
+//        videoTrack.preferredTransform = rotationTransform;
+                parentLayer.transform = CATransform3DMakeAffineTransform(CGAffineTransformMakeRotation(-M_PI_2));
+    }
     CALayer *videoLayer = [CALayer layer];
     
     //  Add image overlay
@@ -35,7 +46,6 @@
     CALayer *imageLayer = [CALayer layer];
     imageLayer.contents = (id)imageOverlay.CGImage;
     imageLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-    parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
     videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
     [parentLayer addSublayer:videoLayer];
     [parentLayer addSublayer:imageLayer];
@@ -62,6 +72,8 @@
     instruction.layerInstructions = [NSArray arrayWithObject:layerInstruction];
     videoComposition.instructions = [NSArray arrayWithObject: instruction];
     
+    videoComposition.renderSize = parentLayer.bounds.size;
+    
     AVAssetExportSession *assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
     assetExport.videoComposition = videoComposition;
     
@@ -81,8 +93,8 @@
     
     [assetExport exportAsynchronouslyWithCompletionHandler:^(void) {
          dispatch_async(dispatch_get_main_queue(),^{
-//             [self exportDidFinish:assetExport];
-             [self reorientVideoWithURL:exportURL originalPreferredRotation:preferredTransform filmedInOrientation:filmedOrientation];
+             [self exportDidFinish:assetExport];
+//             [self reorientVideoWithURL:exportURL originalPreferredRotation:preferredTransform filmedInOrientation:filmedOrientation];
          });
      }];
 }
