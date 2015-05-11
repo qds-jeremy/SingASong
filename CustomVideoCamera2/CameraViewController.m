@@ -7,7 +7,6 @@
 //
 
 #import "CameraViewController.h"
-#import "PlayVideoViewController.h"
 
 @implementation CameraViewController
 
@@ -187,11 +186,12 @@
         }
         
         //  This code does work, but perhaps best practice is to rotate the video via an instruction layer?
+        CGAffineTransform rotationTransform;
         if (_filmedOrientationOfScreen == 4) {
-            CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
+            rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
             videoTrack.preferredTransform = rotationTransform;
         } else if (_filmedOrientationOfScreen == 1) {
-            CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
+            rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
             videoTrack.preferredTransform = rotationTransform;
         }
         
@@ -222,7 +222,7 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 
                 if (didAddOverlay || didAddText)
-                    [[ExportCapture new] addOverlayForVideoAtURL:exportSession.outputURL addOverlay:didAddOverlay addText:didAddText];
+                    [[ExportCapture new] addOverlayForVideoAtURL:exportSession.outputURL addOverlay:didAddOverlay addText:didAddText originalPreferredRotation:rotationTransform filmedInOrientaiton:_filmedOrientationOfScreen];
                 
 //                [self exportDidFinish:exportSession];
                 

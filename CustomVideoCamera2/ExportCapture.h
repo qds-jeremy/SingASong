@@ -21,6 +21,8 @@
 
 @property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
 
-- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText;
+@property (strong, nonatomic) AVAsset *videoAsset;
+
+- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText originalPreferredRotation:(CGAffineTransform)preferredTransform filmedInOrientaiton:(int)filmedOrientation;
 
 @end
