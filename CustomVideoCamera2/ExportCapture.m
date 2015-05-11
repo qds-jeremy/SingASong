@@ -7,32 +7,37 @@
 //
 
 #import "ExportCapture.h"
+#import "PlayVideoViewController.h"
 
 @implementation ExportCapture
 
-- (void)exportDidFinish:(AVAssetExportSession *)exportSession addAnimationLayerForOverlay:(BOOL)hasOverlay forText:(BOOL)hasText {
-    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
-        NSURL *outputURL = exportSession.outputURL;
-        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {
-            [library writeVideoAtPathToSavedPhotosAlbum:outputURL completionBlock:^(NSURL *assetURL, NSError *error){
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (error) {
-                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Video Saving Failed" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                        [alert show];
-                    } else {
-                            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Video Saved" message:@"Saved To Photo Album" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-                            [alert show];
-                    }
-                });
-            }];
-        }
-        [_delegate exportComplete];
-    } else {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"did not get true for AVAssetExportSessionStatusCompleted" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-        [alert show];
-
-    }
-}
+//- (void)exportDidFinish:(AVAssetExportSession *)exportSession {
+//    if (exportSession.status == AVAssetExportSessionStatusCompleted) {
+//        NSURL *outputURL = exportSession.outputURL;
+//        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+//        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {
+//            [library writeVideoAtPathToSavedPhotosAlbum:outputURL completionBlock:^(NSURL *assetURL, NSError *error){
+//                dispatch_async(dispatch_get_main_queue(), ^{
+//                    if (error) {
+//                        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"Video Saving Failed" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//                        [alert show];
+//                    } else {
+//                            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Video Saved" message:@"Saved To Photo Album" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//                            [alert show];
+//
+//                        PlayVideoViewController *vc = [PlayVideoViewController new];
+//                        vc.url = outputURL;
+//                        
+//                    }
+//                });
+//            }];
+//        }
+//        [_delegate exportComplete];
+//    } else {
+//        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Error" message:@"did not get true for AVAssetExportSessionStatusCompleted" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+//        [alert show];
+//
+//    }
+//}
 
 @end

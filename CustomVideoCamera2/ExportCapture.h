@@ -19,8 +19,8 @@
 
 @interface ExportCapture : NSObject
 
-@property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
+//@property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
 
-- (void)exportDidFinish:(AVAssetExportSession *)exportSession addAnimationLayerForOverlay:(BOOL)hasOverlay forText:(BOOL)hasText;
+//- (void)exportDidFinish:(AVAssetExportSession *)exportSession;
 
 @end
