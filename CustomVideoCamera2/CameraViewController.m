@@ -146,21 +146,20 @@
     [_audioPlayer pause];
 }
 
-- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error
-{
+- (void)captureOutput:(AVCaptureFileOutput *)captureOutput didFinishRecordingToOutputFileAtURL:(NSURL *)outputFileURL fromConnections:(NSArray *)connections error:(NSError *)error {
     _isExporting = YES;
     
-    BOOL RecordedSuccessfully = YES;
+    BOOL didRecord = YES;
     if ([error code] != noErr)
     {
         // A problem occurred: Find out if the recording was successful.
         id value = [[error userInfo] objectForKey:AVErrorRecordingSuccessfullyFinishedKey];
         if (value)
         {
-            RecordedSuccessfully = [value boolValue];
+            didRecord = [value boolValue];
         }
     }
-    if (RecordedSuccessfully) {
+    if (didRecord) {
         AVAsset *assetCaptured = [AVAsset assetWithURL:outputFileURL];
         // 1 - Create AVMutableComposition object. This object will hold your AVMutableCompositionTrack instances.
         AVMutableComposition *mixComposition = [[AVMutableComposition alloc] init];
@@ -188,109 +187,51 @@
         }
         
         //  This code does work, but perhaps best practice is to rotate the video via an instruction layer?
-                if (_filmedOrientationOfScreen == 4) {
-                    CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
-                    videoTrack.preferredTransform = rotationTransform;
-                } else if (_filmedOrientationOfScreen == 1) {
-                    CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
-                    videoTrack.preferredTransform = rotationTransform;
-                }
-        
-        
-//        // 3.1 - Create AVMutableVideoCompositionInstruction
-        AVMutableVideoComposition *videoComp = [AVMutableVideoComposition videoComposition];
-        AVMutableVideoCompositionInstruction *mainInstruction = [AVMutableVideoCompositionInstruction videoCompositionInstruction];
-        mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, assetCaptured.duration);
-        
-        //  5 Add animation overlays
-        BOOL addAnimationInstructionLayer = NO;
-        CALayer *parentLayer = [CALayer layer];
-        CALayer *videoLayer = [CALayer layer];
-        [parentLayer addSublayer:videoLayer];
-        //        CGSize videoSize = [[[assetCaptured tracksWithMediaType:AVMediaTypeVideo] firstObject] naturalSize];
-        CGSize videoSize = [videoTrack naturalSize];
-        parentLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-        videoLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-        
-        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"]) {
-         
-            addAnimationInstructionLayer = YES;
-            UIImage *insideBorderImage = [UIImage imageNamed:@"In_Video_Border.png"];
-            CALayer *aLayer = [CALayer layer];
-            aLayer.contents = (id)insideBorderImage.CGImage;
-            aLayer.frame = CGRectMake(0, 0, videoSize.width, videoSize.height);
-            [parentLayer addSublayer:aLayer];
-            
+        if (_filmedOrientationOfScreen == 4) {
+            CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2 * 2);
+            videoTrack.preferredTransform = rotationTransform;
+        } else if (_filmedOrientationOfScreen == 1) {
+            CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(M_PI_2);
+            videoTrack.preferredTransform = rotationTransform;
         }
         
-        if ([_buttonAddText.titleLabel.text isEqualToString:@"Text Added"]) {
-            
-            addAnimationInstructionLayer = YES;
-            CATextLayer *text = [CATextLayer layer];
-            text.string = @"Put In Text Here";
-            text.frame = CGRectMake(100, 200, 320, 50);
-            CGFontRef font = CGFontCreateWithFontName((CFStringRef)@"HelveticaNeue-UltraLight");
-            text.font = font;
-            text.fontSize = 40;
-            text.foregroundColor = [UIColor whiteColor].CGColor;
-            [text display];
-            [parentLayer addSublayer:text];
-            
-        }
+        BOOL didAddOverlay = NO;
+        if ([_buttonAddOverlay.titleLabel.text isEqualToString:@"Overlay Added"])
+            didAddOverlay = YES;
         
-        if (addAnimationInstructionLayer) {
-                mainInstruction.timeRange = CMTimeRangeMake(kCMTimeZero, [mixComposition duration]);
-                AVMutableVideoCompositionLayerInstruction *layerInstruction = [AVMutableVideoCompositionLayerInstruction videoCompositionLayerInstructionWithAssetTrack:videoTrack];
-                
-                BOOL isPortrait = NO;
-                if (_filmedOrientationOfScreen == 4) {
-                    //                CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2 * 2);
-                    //                [layerInstruction setTransform:transform atTime:kCMTimeZero];
-                } else if (_filmedOrientationOfScreen == 1) {
-                    //                CGAffineTransform transform = CGAffineTransformMakeRotation(M_PI_2);
-                    //                [layerInstruction setTransform:transform atTime:kCMTimeZero];
-                    isPortrait = YES;
-                }
-                
-                CGSize naturalSize;
-                if(isPortrait){
-                    naturalSize = CGSizeMake(videoTrack.naturalSize.height, videoTrack.naturalSize.width);
-                } else {
-                    naturalSize = videoTrack.naturalSize;
-                }
-                
-                videoComp.renderSize = videoSize;
-                videoComp.frameDuration = CMTimeMake(1, 30);
-                videoComp.animationTool = [AVVideoCompositionCoreAnimationTool videoCompositionCoreAnimationToolWithPostProcessingAsVideoLayer:videoLayer inLayer:parentLayer];
-                mainInstruction.layerInstructions = @[ layerInstruction ];
-                videoComp.instructions = [NSArray arrayWithObject: mainInstruction];
-        }
+        BOOL didAddText = NO;
+        if ([_buttonAddText.titleLabel.text isEqualToString:@"Text Added"])
+            didAddText = YES;
         
         // 6 - Get path
         NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
         NSString *documentsDirectory = [paths objectAtIndex:0];
-        NSString *myPathDocs = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"mergeVideo-%d.mov",arc4random() % 1000]];
-        NSURL *exportURL = [NSURL fileURLWithPath:myPathDocs];
+        NSString *videosDirectory = [documentsDirectory stringByAppendingPathComponent:@"/Videos"];
+        NSString *exportPath = [videosDirectory stringByAppendingPathComponent:[initialize getFileNameForVideo]];
+        
+//        NSString *myPathDocs = [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"mergeVideo-%d.mov",arc4random() % 1000]];
+        NSURL *exportURL = [NSURL fileURLWithPath:exportPath];
         
         // 7 - Create exporter
-        AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPresetHighestQuality];
-        exporter.outputURL = exportURL;
-        exporter.outputFileType = AVFileTypeQuickTimeMovie;
-        exporter.shouldOptimizeForNetworkUse = YES;
+        AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:mixComposition presetName:AVAssetExportPreset640x480];
+        exportSession.outputURL = exportURL;
+        exportSession.shouldOptimizeForNetworkUse = YES;
+        exportSession.outputFileType = AVFileTypeQuickTimeMovie;
         
-        if (addAnimationInstructionLayer)
-            exporter.videoComposition = videoComp;
-        
-        [exporter exportAsynchronouslyWithCompletionHandler:^{
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-//                [_exportCapture exportDidFinish:exporter];
-                [self exportDidFinish:exporter exportPathURL:exportURL];
+                
+                if (didAddOverlay || didAddText)
+                    [[ExportCapture new] addOverlayForVideoAtURL:exportSession.outputURL addOverlay:didAddOverlay addText:didAddText];
+                
+//                [self exportDidFinish:exportSession];
+                
             });
         }];
     }
 }
 
-- (void)exportDidFinish:(AVAssetExportSession *)exportSession exportPathURL:(NSURL *)exportURL {
+- (void)exportDidFinish:(AVAssetExportSession *)exportSession {
     if (exportSession.status == AVAssetExportSessionStatusCompleted) {
         NSURL *outputURL = exportSession.outputURL;
         ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
@@ -303,11 +244,6 @@
                     } else {
                         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Video Saved" message:@"Saved To Photo Album" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
                         [alert show];
-                        
-                        PlayVideoViewController *vc = [PlayVideoViewController new];
-                        vc.url = exportURL;
-                        [self presentViewController:vc animated:YES completion:nil];
-                        
                     }
                 });
             }];
@@ -323,7 +259,7 @@
 }
 
 #pragma mark ExportCapture Delegate
-- (void)exportComplete {
+- (void)allExportSessionsComplete {
     _isExporting = NO;
 }
 

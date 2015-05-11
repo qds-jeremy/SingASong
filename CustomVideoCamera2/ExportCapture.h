@@ -13,14 +13,14 @@
 
 @protocol ExportCaptureProtocal <NSObject>
 
-- (void)exportComplete;
+- (void)allExportSessionsComplete;
 
 @end
 
 @interface ExportCapture : NSObject
 
-//@property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
+@property (assign, nonatomic) id <ExportCaptureProtocal> delegate;
 
-//- (void)exportDidFinish:(AVAssetExportSession *)exportSession;
+- (void)addOverlayForVideoAtURL:(NSURL *)videoURL addOverlay:(BOOL)willAddOverlay addText:(BOOL)willAddText;
 
 @end

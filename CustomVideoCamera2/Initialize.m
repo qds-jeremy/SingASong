@@ -56,6 +56,39 @@
     return isUsingHeadset;
 }
 
+- (NSString *)getFileNameForVideo {
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    
+    NSString *documentsDirectory = [paths firstObject];
+    
+    NSString *videoFolderPath = [documentsDirectory stringByAppendingPathComponent:@"/Videos"];
+    
+    if (![[NSFileManager defaultManager] fileExistsAtPath:videoFolderPath])
+        [[NSFileManager defaultManager] createDirectoryAtPath:videoFolderPath withIntermediateDirectories:NO attributes:nil error:nil];
+    
+    NSArray *arrayFileNames = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:videoFolderPath error:NULL];
+    
+    NSString *exportFileName;
+    if (arrayFileNames.count == 0) {
+        
+        exportFileName = @"recording-number-000000.mov";
+        
+    } else {
+        
+        NSRange substringRange = NSMakeRange(17, 6);
+        
+        int lastFileNumbers = [[[arrayFileNames lastObject] substringWithRange:substringRange] intValue];
+        
+        lastFileNumbers++;
+        
+        exportFileName = [NSString stringWithFormat:@"recording-number-%06d.mov", lastFileNumbers];
+        
+    }
+    
+    return exportFileName;
+}
+
 - (AVAudioPlayer *)audioPlayerWithSongURL:(NSURL *)songURL songStartTime:(CMTime )songStartTime {
     AVAudioPlayer *audioPlayer = [[AVAudioPlayer alloc]initWithContentsOfURL:songURL error:nil];
     

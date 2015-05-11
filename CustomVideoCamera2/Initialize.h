@@ -13,6 +13,8 @@
 
 - (BOOL)checkIsUsingHeadset;
 
+- (NSString *)getFileNameForVideo;
+
 - (AVAudioPlayer *)audioPlayerWithSongURL:(NSURL *)songURL songStartTime:(CMTime )songStartTime;
 
 - (AVCaptureSession *)cameraSession;

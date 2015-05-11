@@ -315,24 +315,6 @@
             </objects>
             <point key="canvasLocation" x="1385" y="405"/>
         </scene>
-        <!--Play Video View Controller-->
-        <scene sceneID="4ak-5l-q35">
-            <objects>
-                <viewController id="ruC-Jk-cfr" customClass="PlayVideoViewController" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="xc6-R9-XIx"/>
-                        <viewControllerLayoutGuide type="bottom" id="efB-yA-Sbk"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="ze2-BT-DiG">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="2sb-SS-pUI" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="2141" y="405"/>
-        </scene>
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="ySy-BH-w2a"/>
